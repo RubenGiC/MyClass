@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/ic_icon_central"
         android:supportsRtl="true"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:theme="@style/Theme.MyClass">
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity
             android:name=".PrincipalActivity"
             android:exported="true" />

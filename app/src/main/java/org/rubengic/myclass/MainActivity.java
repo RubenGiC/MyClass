@@ -1,8 +1,12 @@
 package org.rubengic.myclass;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -36,6 +40,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //change toolbar by my personalizate
+        /*Toolbar my_toolbar = findViewById(R.id.custom_toolbar_login);
+        setSupportActionBar(my_toolbar);
+        getSupportActionBar().setTitle("My Class");*/
 
         //acceso a los componentes graficos
         ed_usuario = (EditText) findViewById(R.id.ed_usuario);
