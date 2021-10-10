@@ -28,7 +28,6 @@ import java.util.concurrent.Callable;
 
 public class MainActivity extends AppCompatActivity {
 
-    private BaseDatos db;
     private EditText ed_usuario, ed_password;
     private Button b_login;
     TextView tv_error;
@@ -38,14 +37,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //acceso a los componentes graficos
         ed_usuario = (EditText) findViewById(R.id.ed_usuario);
         ed_password = (EditText) findViewById(R.id.ed_password);
         b_login = (Button) findViewById(R.id.b_login);
         tv_error = (TextView) findViewById(R.id.tv_errors);
 
+        //acción cuando pulsa el boton iniciar sesión
         b_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //valido usuario y contraseña
                 validarUsuario("http://192.168.1.42:8080/validar_login.php");
             }
         });
@@ -66,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(getApplicationContext(),PrincipalActivity.class);
                     startActivity(intent);
                 }else{
+                    //si no devuelve nada el servidor es que el usuario o contraseña estan mal
                     tv_error.setText("Error usuario y/o contraseña son incorrectos");
                 }
             }
@@ -80,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         }){
             /**
              * Aqui generamos el JSON para enviarlo al server PHP
-             * @return
+             * @return devuelve el Map
              * @throws AuthFailureError
              */
             @Override
