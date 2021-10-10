@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- esto es para darle permisos de seguridad a la ip de mi ordenador -->
+<network-security-config>
+	<domain-config cleartextTrafficPermitted="true">
+		<domain includeSubdomains="true">192.168.1.42</domain>
+	</domain-config>
+</network-security-config>

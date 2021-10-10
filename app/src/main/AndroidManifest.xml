@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.rubengic.myclass">
-
+    package="org.rubengic.myclass" android:targetSandboxVersion="1">
     <!-- Permisos -->
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission><!-- Internet -->
-
-
+    <uses-permission android:name="android.permission.INTERNET" /><!-- INTERNET -->
+    <!-- desactivo la seguridad HTTPS (usesCleartextTraffic) -->
+    <!-- y añado la configuracion de seguridad del network -->
     <application
+        android:usesCleartextTraffic="false"
         android:allowBackup="true"
         android:icon="@mipmap/ic_icon_central"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_icon_central"
         android:supportsRtl="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.MyClass">
+        <activity
+            android:name=".PrincipalActivity"
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
