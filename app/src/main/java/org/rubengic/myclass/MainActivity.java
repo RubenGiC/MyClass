@@ -22,6 +22,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -57,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //valido usuario y contraseña
-                //validarUsuario("http://192.168.1.42:8080/validar_login.php");
-                validarUsuario("http://192.168.47.2:8080/validar_login.php");
+                validarUsuario("http://192.168.1.42:8080/validar_login.php");
+                //validarUsuario("http://192.168.47.2:8080/validar_login.php");
             }
         });
     }
@@ -76,6 +80,16 @@ public class MainActivity extends AppCompatActivity {
                 //si no esta vacia, el usuario y contraseña son correctos y va a la pagina principal
                 if(!response.isEmpty()){
                     Intent intent = new Intent(getApplicationContext(),PrincipalActivity.class);
+                    try {
+                        JSONObject log_user = new JSONObject(response);
+                        intent.putExtra("id",log_user.getInt("id_alumno"));
+                        //Toast.makeText(MainActivity.this, String.valueOf(log_user.getInt("id_alumno")), Toast.LENGTH_SHORT).show();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+
+
                     startActivity(intent);
                 }else{
                     //si no devuelve nada el servidor es que el usuario o contraseña estan mal
