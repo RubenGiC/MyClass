@@ -1,6 +1,8 @@
 package org.rubengic.myclass;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -28,8 +31,10 @@ import java.util.TimeZone;
 
 public class PrincipalActivity extends AppCompatActivity {
 
-    TextView titulo;
-    int id_alumno;
+    private TextView titulo;
+    private int id_alumno;
+    private ArrayList<Asignatura> list_asig;
+    private RecyclerView rv_lista;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +73,14 @@ public class PrincipalActivity extends AppCompatActivity {
         }
 
         titulo.setText(titulo_s);
+
+        list_asig = new ArrayList<>();//inicializamos la lista donde contendra los valores
+        rv_lista = (RecyclerView) findViewById(R.id.rv_horario);//accedemos al reciclerview
+        //administramos el diseño
+        rv_lista.setLayoutManager(new LinearLayoutManager(this));
+
+        //tipo get "192.168.1.1:8080/lista_asig.php?id="+id
+        //obtenerListaJSON("");
     }
 
     //para validar el usuario y contraseña
@@ -86,14 +99,38 @@ public class PrincipalActivity extends AppCompatActivity {
                 //si no esta vacia, tiene asignaturas
                 if(response.length()>0){
 
+                    //si la lista no está limpia la limpiamos
+                    if(!list_asig.isEmpty()){ list_asig.clear();}
+
+                    //creamos el objeto Asignatura
+                    Asignatura asignatura = null;
+
                     //recorro los valores del json
                     for(int i = 0; i<response.length(); ++i){
                         try {
                             json_object = response.getJSONObject(i);
+                            /*
+                            * json_object.getInt("id")
+                            * json_object.getString("nombre")
+                            * json_object.getString("aula")
+                            * json_object.getString("hora")
+                            * */
+
+                            asignatura = new Asignatura(
+                                    json_object.getInt("id"),
+                                    json_object.getString("nombre"),
+                                    json_object.getString("aula"),
+                                    json_object.getString("hora"));
+
+                            list_asig.add(asignatura);
+
+                            Toast.makeText(PrincipalActivity.this, json_object.getString("id"), Toast.LENGTH_SHORT).show();
                         }catch (JSONException e){
                             Toast.makeText(PrincipalActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
+
+
 
                 }else{
                     //si no devuelve nada el servidor es que no tiene asignaturas ese dia
@@ -107,22 +144,7 @@ public class PrincipalActivity extends AppCompatActivity {
                 //en caso de error en la respuesta muestro un toast del error
                 Toast.makeText(PrincipalActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
             }
-        }){
-            /**
-             * Aqui generamos el JSON para enviarlo al server PHP
-             * @return devuelve el Map
-             * @throws AuthFailureError
-             */
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                //creo el mapa de tipo string
-                Map<String,String> parametros = new HashMap<String,String>();
-                //e introduzco los parametros usuario y contraseña
-                parametros.put("id_usuario",String.valueOf(id_alumno));
-                //parametros.put("password",ed_password.getText().toString());
-                return parametros;
-            }
-        };
+        });
         //creo la instancia del request para procesar las peticiones a traves de aqui
         RequestQueue rq = Volley.newRequestQueue(this);
         rq.add(sr);

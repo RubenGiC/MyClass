@@ -13,11 +13,11 @@ import java.util.ArrayList;
 
 public class ListaHorarioNow  extends RecyclerView.Adapter<ListaHorarioNow.ViewHolder> {
 
-    public ArrayList<AsignaturaAula> listNow;
+    public ArrayList<Asignatura> listNow;
 
     private static OnItemListener onItemListener;
 
-    public ListaHorarioNow(ArrayList<AsignaturaAula> listNow){//String[] dataSet
+    public ListaHorarioNow(ArrayList<Asignatura> listNow){//String[] dataSet
         this.listNow = listNow;
     }
 
@@ -37,30 +37,35 @@ public class ListaHorarioNow  extends RecyclerView.Adapter<ListaHorarioNow.ViewH
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-
+        /*
+        holder.nombre.setText(listNow.get(position).getNombre)
+        holder.nombre.setText(listNow.get(position).getAula)
+        holder.nombre.setText(listNow.get(position).getHorario)
+         */
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return listNow.size();
     }
 
+    public Asignatura getAsignatura(int position){ return listNow.get(position);}
+
     public static class ViewHolder extends RecyclerView.ViewHolder{
-        TextView name, price, market;
-        ImageView imagen;
+        TextView nombre, aula, hora;
 
         public ViewHolder(View view) {
             super(view);
             // Define click listener for the ViewHolder's View
             // Define the texts Views
-            /*name = (TextView) view.findViewById(R.id.t_name);
+            /*nombre = (TextView) view.findViewById(R.id.t_name);
             hora = (TextView) view.findViewById(R.id.t_hora);
             aula = (TextView) view.findViewById(R.id.t_aula);
             */
         }
 
         public TextView getName() {
-            return name;
+            return nombre;
         }
     }
 
@@ -73,18 +78,12 @@ public class ListaHorarioNow  extends RecyclerView.Adapter<ListaHorarioNow.ViewH
                 onItemListener.OnItemClickListener(v, v.getId());
 
         }
-
-        /*@Override
-        public boolean onLongClick(View v) {
-            if(onItemListener != null)
-                onItemListener.OnItemLongClickListener(v, v.getId());
-            return true;
-        }*/
     }
+
+    public void setOnItemListener(OnItemListener listener){this.onItemListener = listener;}
 
     //define listening interface class
     public interface OnItemListener{
         void OnItemClickListener(View view, int position);
-        //void OnItemLongClickListener(View view, int position);
     }
 }

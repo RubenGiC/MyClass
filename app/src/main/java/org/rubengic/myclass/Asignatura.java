@@ -1,19 +1,23 @@
 package org.rubengic.myclass;
 
 public class Asignatura {
-    private int ID ;
-    private String nombre;
+    private int id;
+    private String nombre, aula, hora;
 
-    public Asignatura(String n){
-        nombre = n;
+    public Asignatura(int id, String nombre, String aula, String hora){
+
+        this.nombre = nombre;
+        this.id = id;
+        this.aula = aula;
+        this.hora = hora;
     }
 
     public int getID() {
-        return ID;
+        return id;
     }
 
     public void setID(int ID) {
-        this.ID = ID;
+        this.id = ID;
     }
 
     public String getNombre() {
@@ -22,5 +26,21 @@ public class Asignatura {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public String getAula() {
+        return aula;
+    }
+
+    public void setAula(String aula) {
+        this.aula = aula;
+    }
+
+    public String getHora() {
+        return hora;
+    }
+
+    public void setHora(String hora) {
+        this.hora = hora;
     }
 }
