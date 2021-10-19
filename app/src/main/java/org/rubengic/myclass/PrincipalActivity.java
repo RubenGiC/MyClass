@@ -56,7 +56,7 @@ public class PrincipalActivity extends AppCompatActivity {
                 titulo_s = titulo_s + " Lunes";
                 break;
             case 3:
-                titulo_s = titulo_s + " Lunes";
+                titulo_s = titulo_s + " Marte";
                 break;
             case 4:
                 titulo_s = titulo_s + " Lunes";
@@ -80,6 +80,7 @@ public class PrincipalActivity extends AppCompatActivity {
         rv_lista.setLayoutManager(new LinearLayoutManager(this));
 
         //tipo get "192.168.1.1:8080/lista_asig.php?id="+id
+        //http://localhost:8080/lista_asignaturas.php?id=1&semana=1
         //obtenerListaJSON("");
     }
 
