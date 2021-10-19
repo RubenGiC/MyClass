@@ -61,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //valido usuario y contraseña
-                //validarUsuario("http://192.168.1.42:8080/validar_login.php");
-                validarUsuario("http://192.168.47.2:8080/validar_login.php");
+                validarUsuario("http://192.168.1.42:8080/validar_login.php");
+                //validarUsuario("http://192.168.47.2:8080/validar_login.php");
             }
         });
     }

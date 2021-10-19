@@ -35,6 +35,7 @@ public class PrincipalActivity extends AppCompatActivity {
     private int id_alumno;
     private ArrayList<Asignatura> list_asig;
     private RecyclerView rv_lista;
+    private ListaHorarioNow adaptador;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,16 +57,16 @@ public class PrincipalActivity extends AppCompatActivity {
                 titulo_s = titulo_s + " Lunes";
                 break;
             case 3:
-                titulo_s = titulo_s + " Marte";
+                titulo_s = titulo_s + " Martes";
                 break;
             case 4:
-                titulo_s = titulo_s + " Lunes";
+                titulo_s = titulo_s + " Miercoles";
                 break;
             case 5:
-                titulo_s = titulo_s + " Lunes";
+                titulo_s = titulo_s + " Jueves";
                 break;
             case 6:
-                titulo_s = titulo_s + " Lunes";
+                titulo_s = titulo_s + " Viernes";
                 break;
             default:
                 titulo_s = titulo_s + " Fin de Semana";
@@ -81,7 +82,7 @@ public class PrincipalActivity extends AppCompatActivity {
 
         //tipo get "192.168.1.1:8080/lista_asig.php?id="+id
         //http://localhost:8080/lista_asignaturas.php?id=1&semana=1
-        //obtenerListaJSON("");
+        obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
     }
 
     //para validar el usuario y contraseña
@@ -124,14 +125,15 @@ public class PrincipalActivity extends AppCompatActivity {
                                     json_object.getString("hora"));
 
                             list_asig.add(asignatura);
-
-                            Toast.makeText(PrincipalActivity.this, json_object.getString("id"), Toast.LENGTH_SHORT).show();
                         }catch (JSONException e){
-                            Toast.makeText(PrincipalActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PrincipalActivity.this, "ERRROR1: "+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
 
-
+                    //create the adapter
+                    adaptador = new ListaHorarioNow(list_asig);
+                    //and add the adapter to the recycler view
+                    rv_lista.setAdapter(adaptador);
 
                 }else{
                     //si no devuelve nada el servidor es que no tiene asignaturas ese dia
@@ -143,7 +145,7 @@ public class PrincipalActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
 
                 //en caso de error en la respuesta muestro un toast del error
-                Toast.makeText(PrincipalActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(PrincipalActivity.this, "ERRROR2: "+error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
         //creo la instancia del request para procesar las peticiones a traves de aqui

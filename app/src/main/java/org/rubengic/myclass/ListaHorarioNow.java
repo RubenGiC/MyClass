@@ -26,13 +26,12 @@ public class ListaHorarioNow  extends RecyclerView.Adapter<ListaHorarioNow.ViewH
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         //diseño del reciclerview
-        //View vi = LayoutInflater.from(parent.getContext()).inflate(R.layout.text_row_item, null, false);
+        View vi = LayoutInflater.from(parent.getContext()).inflate(R.layout.subject_row, null, false);
 
-        //vi.setOnClickListener(new RV_ItemListener());
-        //vi.setOnLongClickListener(new RV_ItemListener());
+        vi.setOnClickListener(new RV_AsigListener());
 
-        //return new ViewHolder(vi);
-        return null;
+        return new ViewHolder(vi);
+        //return null;
     }
 
     @Override
@@ -42,6 +41,9 @@ public class ListaHorarioNow  extends RecyclerView.Adapter<ListaHorarioNow.ViewH
         holder.nombre.setText(listNow.get(position).getAula)
         holder.nombre.setText(listNow.get(position).getHorario)
          */
+        holder.hora.setText(listNow.get(position).getHora());
+        holder.nombre.setText(listNow.get(position).getNombre());
+        holder.aula.setText(listNow.get(position).getAula());
     }
 
     @Override
@@ -58,10 +60,9 @@ public class ListaHorarioNow  extends RecyclerView.Adapter<ListaHorarioNow.ViewH
             super(view);
             // Define click listener for the ViewHolder's View
             // Define the texts Views
-            /*nombre = (TextView) view.findViewById(R.id.t_name);
-            hora = (TextView) view.findViewById(R.id.t_hora);
-            aula = (TextView) view.findViewById(R.id.t_aula);
-            */
+            hora = (TextView) view.findViewById(R.id.Hora);
+            nombre = (TextView) view.findViewById(R.id.Nombre);
+            aula = (TextView) view.findViewById(R.id.Aula);
         }
 
         public TextView getName() {
