@@ -1,0 +1,166 @@
+Index: app/src/main/java/org/rubengic/myclass/ListaHorarioNow.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.rubengic.myclass;\r\n\r\nimport android.view.LayoutInflater;\r\nimport android.view.View;\r\nimport android.view.ViewGroup;\r\nimport android.widget.ImageView;\r\nimport android.widget.TextView;\r\n\r\nimport androidx.annotation.NonNull;\r\nimport androidx.recyclerview.widget.RecyclerView;\r\n\r\nimport java.util.ArrayList;\r\n\r\npublic class ListaHorarioNow  extends RecyclerView.Adapter<ListaHorarioNow.ViewHolder> {\r\n\r\n    public ArrayList<Asignatura> listNow;\r\n\r\n    private static OnItemListener onItemListener;\r\n\r\n    public ListaHorarioNow(ArrayList<Asignatura> listNow){//String[] dataSet\r\n        this.listNow = listNow;\r\n    }\r\n\r\n    @NonNull\r\n    @Override\r\n    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {\r\n\r\n        //diseño del reciclerview\r\n        //View vi = LayoutInflater.from(parent.getContext()).inflate(R.layout.text_row_item, null, false);\r\n\r\n        //vi.setOnClickListener(new RV_ItemListener());\r\n        //vi.setOnLongClickListener(new RV_ItemListener());\r\n\r\n        //return new ViewHolder(vi);\r\n        return null;\r\n    }\r\n\r\n    @Override\r\n    public void onBindViewHolder(ViewHolder holder, int position) {\r\n        /*\r\n        holder.nombre.setText(listNow.get(position).getNombre)\r\n        holder.nombre.setText(listNow.get(position).getAula)\r\n        holder.nombre.setText(listNow.get(position).getHorario)\r\n         */\r\n    }\r\n\r\n    @Override\r\n    public int getItemCount() {\r\n        return listNow.size();\r\n    }\r\n\r\n    public Asignatura getAsignatura(int position){ return listNow.get(position);}\r\n\r\n    public static class ViewHolder extends RecyclerView.ViewHolder{\r\n        TextView nombre, aula, hora;\r\n\r\n        public ViewHolder(View view) {\r\n            super(view);\r\n            // Define click listener for the ViewHolder's View\r\n            // Define the texts Views\r\n            /*nombre = (TextView) view.findViewById(R.id.t_name);\r\n            hora = (TextView) view.findViewById(R.id.t_hora);\r\n            aula = (TextView) view.findViewById(R.id.t_aula);\r\n            */\r\n        }\r\n\r\n        public TextView getName() {\r\n            return nombre;\r\n        }\r\n    }\r\n\r\n    //implement the interface callback method to transfer the click event to the external caller\r\n    public static class RV_AsigListener implements View.OnClickListener{//, View.OnLongClickListener\r\n\r\n        @Override\r\n        public void onClick(View v) {\r\n            if(onItemListener != null)\r\n                onItemListener.OnItemClickListener(v, v.getId());\r\n\r\n        }\r\n    }\r\n\r\n    public void setOnItemListener(OnItemListener listener){this.onItemListener = listener;}\r\n\r\n    //define listening interface class\r\n    public interface OnItemListener{\r\n        void OnItemClickListener(View view, int position);\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/org/rubengic/myclass/ListaHorarioNow.java b/app/src/main/java/org/rubengic/myclass/ListaHorarioNow.java
+--- a/app/src/main/java/org/rubengic/myclass/ListaHorarioNow.java	(revision 2c5037520d2997737a50e24092a75d5202fa5520)
++++ b/app/src/main/java/org/rubengic/myclass/ListaHorarioNow.java	(date 1634661971730)
+@@ -42,6 +42,9 @@
+         holder.nombre.setText(listNow.get(position).getAula)
+         holder.nombre.setText(listNow.get(position).getHorario)
+          */
++        holder.hora.setText(listNow.get(position).getHora());
++        holder.nombre.setText(listNow.get(position).getNombre());
++        holder.aula.setText(listNow.get(position).getAula());
+     }
+ 
+     @Override
+@@ -62,6 +65,9 @@
+             hora = (TextView) view.findViewById(R.id.t_hora);
+             aula = (TextView) view.findViewById(R.id.t_aula);
+             */
++            hora = (TextView) view.findViewById(R.id.Hora);
++            nombre = (TextView) view.findViewById(R.id.Nombre);
++            aula = (TextView) view.findViewById(R.id.Aula);
+         }
+ 
+         public TextView getName() {
+Index: app/src/main/java/org/rubengic/myclass/PrincipalActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.rubengic.myclass;\r\n\r\nimport androidx.appcompat.app.AppCompatActivity;\r\nimport androidx.recyclerview.widget.LinearLayoutManager;\r\nimport androidx.recyclerview.widget.RecyclerView;\r\n\r\nimport android.content.Intent;\r\nimport android.os.Bundle;\r\nimport android.widget.TextView;\r\nimport android.widget.Toast;\r\n\r\nimport com.android.volley.AuthFailureError;\r\nimport com.android.volley.Request;\r\nimport com.android.volley.RequestQueue;\r\nimport com.android.volley.Response;\r\nimport com.android.volley.VolleyError;\r\nimport com.android.volley.toolbox.JsonArrayRequest;\r\nimport com.android.volley.toolbox.StringRequest;\r\nimport com.android.volley.toolbox.Volley;\r\n\r\nimport org.json.JSONArray;\r\nimport org.json.JSONException;\r\nimport org.json.JSONObject;\r\n\r\nimport java.util.ArrayList;\r\nimport java.util.Calendar;\r\nimport java.util.GregorianCalendar;\r\nimport java.util.HashMap;\r\nimport java.util.Map;\r\nimport java.util.TimeZone;\r\n\r\npublic class PrincipalActivity extends AppCompatActivity {\r\n\r\n    private TextView titulo;\r\n    private int id_alumno;\r\n    private ArrayList<Asignatura> list_asig;\r\n    private RecyclerView rv_lista;\r\n\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        setContentView(R.layout.activity_principal);\r\n\r\n        id_alumno = getIntent().getExtras().getInt(\"id\");\r\n\r\n        titulo = (TextView) findViewById(R.id.tv_titulo);\r\n\r\n        Calendar calendar = new GregorianCalendar(TimeZone.getDefault());\r\n\r\n        int nd = calendar.get(Calendar.DAY_OF_WEEK);\r\n\r\n        String titulo_s = (String) titulo.getText();\r\n\r\n        switch (nd){\r\n            case 2:\r\n                titulo_s = titulo_s + \" Lunes\";\r\n                break;\r\n            case 3:\r\n                titulo_s = titulo_s + \" Lunes\";\r\n                break;\r\n            case 4:\r\n                titulo_s = titulo_s + \" Lunes\";\r\n                break;\r\n            case 5:\r\n                titulo_s = titulo_s + \" Lunes\";\r\n                break;\r\n            case 6:\r\n                titulo_s = titulo_s + \" Lunes\";\r\n                break;\r\n            default:\r\n                titulo_s = titulo_s + \" Fin de Semana\";\r\n                break;\r\n        }\r\n\r\n        titulo.setText(titulo_s);\r\n\r\n        list_asig = new ArrayList<>();//inicializamos la lista donde contendra los valores\r\n        rv_lista = (RecyclerView) findViewById(R.id.rv_horario);//accedemos al reciclerview\r\n        //administramos el diseño\r\n        rv_lista.setLayoutManager(new LinearLayoutManager(this));\r\n\r\n        //tipo get \"192.168.1.1:8080/lista_asig.php?id=\"+id\r\n        //obtenerListaJSON(\"\");\r\n    }\r\n\r\n    //para validar el usuario y contraseña\r\n    private void obtenerListaJSON(String URL){\r\n        //genero el request de tipo POST\r\n        JsonArrayRequest sr = new JsonArrayRequest(URL, new Response.Listener<JSONArray>() {\r\n            /**\r\n             * metodo para recibir la respuesta del servidor PHP\r\n             * @param response (recibe el mensaje del servidor)\r\n             */\r\n            @Override\r\n            public void onResponse(JSONArray response) {\r\n\r\n                JSONObject json_object = null;\r\n\r\n                //si no esta vacia, tiene asignaturas\r\n                if(response.length()>0){\r\n\r\n                    //si la lista no está limpia la limpiamos\r\n                    if(!list_asig.isEmpty()){ list_asig.clear();}\r\n\r\n                    //creamos el objeto Asignatura\r\n                    Asignatura asignatura = null;\r\n\r\n                    //recorro los valores del json\r\n                    for(int i = 0; i<response.length(); ++i){\r\n                        try {\r\n                            json_object = response.getJSONObject(i);\r\n                            /*\r\n                            * json_object.getInt(\"id\")\r\n                            * json_object.getString(\"nombre\")\r\n                            * json_object.getString(\"aula\")\r\n                            * json_object.getString(\"hora\")\r\n                            * */\r\n\r\n                            asignatura = new Asignatura(\r\n                                    json_object.getInt(\"id\"),\r\n                                    json_object.getString(\"nombre\"),\r\n                                    json_object.getString(\"aula\"),\r\n                                    json_object.getString(\"hora\"));\r\n\r\n                            list_asig.add(asignatura);\r\n\r\n                            Toast.makeText(PrincipalActivity.this, json_object.getString(\"id\"), Toast.LENGTH_SHORT).show();\r\n                        }catch (JSONException e){\r\n                            Toast.makeText(PrincipalActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();\r\n                        }\r\n                    }\r\n\r\n\r\n\r\n                }else{\r\n                    //si no devuelve nada el servidor es que no tiene asignaturas ese dia\r\n                    Toast.makeText(PrincipalActivity.this, \"Hoy no tiene clase\", Toast.LENGTH_SHORT).show();\r\n                }\r\n            }\r\n        }, new Response.ErrorListener() {\r\n            @Override\r\n            public void onErrorResponse(VolleyError error) {\r\n\r\n                //en caso de error en la respuesta muestro un toast del error\r\n                Toast.makeText(PrincipalActivity.this, error.toString(), Toast.LENGTH_SHORT).show();\r\n            }\r\n        });\r\n        //creo la instancia del request para procesar las peticiones a traves de aqui\r\n        RequestQueue rq = Volley.newRequestQueue(this);\r\n        rq.add(sr);\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/org/rubengic/myclass/PrincipalActivity.java b/app/src/main/java/org/rubengic/myclass/PrincipalActivity.java
+--- a/app/src/main/java/org/rubengic/myclass/PrincipalActivity.java	(revision 2c5037520d2997737a50e24092a75d5202fa5520)
++++ b/app/src/main/java/org/rubengic/myclass/PrincipalActivity.java	(date 1634661379543)
+@@ -35,6 +35,7 @@
+     private int id_alumno;
+     private ArrayList<Asignatura> list_asig;
+     private RecyclerView rv_lista;
++    private ListaHorarioNow adaptador;
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+Index: .idea/gradle.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"GradleSettings\">\r\n    <option name=\"linkedExternalProjectsSettings\">\r\n      <GradleProjectSettings>\r\n        <option name=\"testRunner\" value=\"GRADLE\" />\r\n        <option name=\"distributionType\" value=\"DEFAULT_WRAPPED\" />\r\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$\" />\r\n        <option name=\"modules\">\r\n          <set>\r\n            <option value=\"$PROJECT_DIR$\" />\r\n            <option value=\"$PROJECT_DIR$/app\" />\r\n          </set>\r\n        </option>\r\n        <option name=\"resolveModulePerSourceSet\" value=\"false\" />\r\n      </GradleProjectSettings>\r\n    </option>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/gradle.xml b/.idea/gradle.xml
+--- a/.idea/gradle.xml	(revision 2c5037520d2997737a50e24092a75d5202fa5520)
++++ b/.idea/gradle.xml	(date 1634660656278)
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
++  <component name="GradleMigrationSettings" migrationVersion="1" />
+   <component name="GradleSettings">
+     <option name="linkedExternalProjectsSettings">
+       <GradleProjectSettings>
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"NONE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"63055d35-9a78-4082-8d20-ce549ca83819\" name=\"Default Changelist\" comment=\"\" />\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"ExecutionTargetManager\" SELECTED_TARGET=\"device_and_snapshot_combo_box_target[]\" />\r\n  <component name=\"ExternalProjectsData\">\r\n    <projectState path=\"$PROJECT_DIR$\">\r\n      <ProjectState />\r\n    </projectState>\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"ProjectId\" id=\"1zAaRaHjO3Lb0ecmE26BY1IiO6V\" />\r\n  <component name=\"ProjectLevelVcsManager\">\r\n    <ConfirmationsSetting value=\"1\" id=\"Add\" />\r\n  </component>\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">\r\n    <property name=\"RunOnceActivity.OpenProjectViewOnStart\" value=\"true\" />\r\n    <property name=\"RunOnceActivity.ShowReadmeOnStart\" value=\"true\" />\r\n    <property name=\"last_opened_file_path\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"RunManager\">\r\n    <configuration name=\"app\" type=\"AndroidRunConfigurationType\" factoryName=\"Android App\">\r\n      <module name=\"MyClass.app\" />\r\n      <option name=\"DEPLOY\" value=\"true\" />\r\n      <option name=\"DEPLOY_APK_FROM_BUNDLE\" value=\"false\" />\r\n      <option name=\"DEPLOY_AS_INSTANT\" value=\"false\" />\r\n      <option name=\"ARTIFACT_NAME\" value=\"\" />\r\n      <option name=\"PM_INSTALL_OPTIONS\" value=\"\" />\r\n      <option name=\"ALL_USERS\" value=\"false\" />\r\n      <option name=\"ALWAYS_INSTALL_WITH_PM\" value=\"false\" />\r\n      <option name=\"DYNAMIC_FEATURES_DISABLED_LIST\" value=\"\" />\r\n      <option name=\"ACTIVITY_EXTRA_FLAGS\" value=\"\" />\r\n      <option name=\"MODE\" value=\"default_activity\" />\r\n      <option name=\"CLEAR_LOGCAT\" value=\"false\" />\r\n      <option name=\"SHOW_LOGCAT_AUTOMATICALLY\" value=\"false\" />\r\n      <option name=\"SKIP_NOOP_APK_INSTALLATIONS\" value=\"true\" />\r\n      <option name=\"FORCE_STOP_RUNNING_APP\" value=\"true\" />\r\n      <option name=\"TARGET_SELECTION_MODE\" value=\"DEVICE_AND_SNAPSHOT_COMBO_BOX\" />\r\n      <option name=\"SELECTED_CLOUD_MATRIX_CONFIGURATION_ID\" value=\"-1\" />\r\n      <option name=\"SELECTED_CLOUD_MATRIX_PROJECT_ID\" value=\"\" />\r\n      <option name=\"DEBUGGER_TYPE\" value=\"Auto\" />\r\n      <Auto>\r\n        <option name=\"USE_JAVA_AWARE_DEBUGGER\" value=\"false\" />\r\n        <option name=\"SHOW_STATIC_VARS\" value=\"true\" />\r\n        <option name=\"WORKING_DIR\" value=\"\" />\r\n        <option name=\"TARGET_LOGGING_CHANNELS\" value=\"lldb process:gdb-remote packets\" />\r\n        <option name=\"SHOW_OPTIMIZED_WARNING\" value=\"true\" />\r\n      </Auto>\r\n      <Hybrid>\r\n        <option name=\"USE_JAVA_AWARE_DEBUGGER\" value=\"false\" />\r\n        <option name=\"SHOW_STATIC_VARS\" value=\"true\" />\r\n        <option name=\"WORKING_DIR\" value=\"\" />\r\n        <option name=\"TARGET_LOGGING_CHANNELS\" value=\"lldb process:gdb-remote packets\" />\r\n        <option name=\"SHOW_OPTIMIZED_WARNING\" value=\"true\" />\r\n      </Hybrid>\r\n      <Java />\r\n      <Native>\r\n        <option name=\"USE_JAVA_AWARE_DEBUGGER\" value=\"false\" />\r\n        <option name=\"SHOW_STATIC_VARS\" value=\"true\" />\r\n        <option name=\"WORKING_DIR\" value=\"\" />\r\n        <option name=\"TARGET_LOGGING_CHANNELS\" value=\"lldb process:gdb-remote packets\" />\r\n        <option name=\"SHOW_OPTIMIZED_WARNING\" value=\"true\" />\r\n      </Native>\r\n      <Profilers>\r\n        <option name=\"ADVANCED_PROFILING_ENABLED\" value=\"false\" />\r\n        <option name=\"STARTUP_PROFILING_ENABLED\" value=\"false\" />\r\n        <option name=\"STARTUP_CPU_PROFILING_ENABLED\" value=\"false\" />\r\n        <option name=\"STARTUP_CPU_PROFILING_CONFIGURATION_NAME\" value=\"Sample Java Methods\" />\r\n        <option name=\"STARTUP_NATIVE_MEMORY_PROFILING_ENABLED\" value=\"false\" />\r\n        <option name=\"NATIVE_MEMORY_SAMPLE_RATE_BYTES\" value=\"2048\" />\r\n      </Profilers>\r\n      <option name=\"DEEP_LINK\" value=\"\" />\r\n      <option name=\"ACTIVITY_CLASS\" value=\"\" />\r\n      <option name=\"SEARCH_ACTIVITY_IN_GLOBAL_SCOPE\" value=\"false\" />\r\n      <option name=\"SKIP_ACTIVITY_VALIDATION\" value=\"false\" />\r\n      <method v=\"2\">\r\n        <option name=\"Android.Gradle.BeforeRunTask\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"63055d35-9a78-4082-8d20-ce549ca83819\" name=\"Default Changelist\" comment=\"\" />\r\n      <created>1633593352339</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1633593352339</updated>\r\n    </task>\r\n    <servers />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 2c5037520d2997737a50e24092a75d5202fa5520)
++++ b/.idea/workspace.xml	(date 1634662875063)
+@@ -1,25 +1,65 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
++  <component name="AndroidLayouts">
++    <shared>
++      <config />
++    </shared>
++  </component>
+   <component name="AutoImportSettings">
+     <option name="autoReloadType" value="NONE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="63055d35-9a78-4082-8d20-ce549ca83819" name="Default Changelist" comment="" />
++    <list default="true" id="63055d35-9a78-4082-8d20-ce549ca83819" name="Default Changelist" comment="">
++      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/rubengic/myclass/ListaHorarioNow.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/rubengic/myclass/ListaHorarioNow.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/rubengic/myclass/PrincipalActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/rubengic/myclass/PrincipalActivity.java" afterDir="false" />
++    </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+     <option name="LAST_RESOLUTION" value="IGNORE" />
+   </component>
+-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
++  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[C:\Users\Usuario\.android\avd\Pixel_4a_API_30.avd]" />
+   <component name="ExternalProjectsData">
+     <projectState path="$PROJECT_DIR$">
+       <ProjectState />
+     </projectState>
+   </component>
++  <component name="ExternalProjectsManager">
++    <system id="GRADLE">
++      <state>
++        <projects_view>
++          <tree_state>
++            <expand>
++              <path>
++                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
++                <item name="MyClass" type="f1a62948:ProjectNode" />
++              </path>
++              <path>
++                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
++                <item name="MyClass" type="f1a62948:ProjectNode" />
++                <item name="app" type="2d1252cf:ModuleNode" />
++              </path>
++              <path>
++                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
++                <item name="MyClass" type="f1a62948:ProjectNode" />
++                <item name="app" type="2d1252cf:ModuleNode" />
++                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
++              </path>
++            </expand>
++            <select />
++          </tree_state>
++        </projects_view>
++      </state>
++    </system>
++  </component>
+   <component name="FileTemplateManagerImpl">
+     <option name="RECENT_TEMPLATES">
+       <list>
+         <option value="Class" />
++        <option value="layoutResourceFile" />
+       </list>
+     </option>
+   </component>
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_11\" default=\"true\" project-jdk-name=\"Android Studio default JDK\" project-jdk-type=\"JavaSDK\">\r\n    <output url=\"file://$PROJECT_DIR$/build/classes\" />\r\n  </component>\r\n  <component name=\"ProjectType\">\r\n    <option name=\"id\" value=\"Android\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision 2c5037520d2997737a50e24092a75d5202fa5520)
++++ b/.idea/misc.xml	(date 1634662294339)
+@@ -1,5 +1,12 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
++  <component name="DesignSurface">
++    <option name="filePathToZoomLevelMap">
++      <map>
++        <entry key="..\:/Users/Usuario/Documents/GitHub/MyClass/app/src/main/res/layout/subject_row.xml" value="0.3333333333333333" />
++      </map>
++    </option>
++  </component>
+   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+     <output url="file://$PROJECT_DIR$/build/classes" />
+   </component>

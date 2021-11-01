@@ -49,6 +49,16 @@
                 android:layout_height="match_parent" />
 
         </LinearLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floatbotton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:src="@drawable/ic_baseline_place_24"
+            android:layout_margin="16dp"
+            app:backgroundTint="@color/ic_icon_central_background" />
+
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
