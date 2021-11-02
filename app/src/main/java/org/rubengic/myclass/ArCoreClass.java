@@ -9,6 +9,8 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -156,8 +158,25 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadInternalStateFromIntentExtras();
+
         //cargo el entorno grafico
         setContentView(R.layout.activity_ar_core_class);
+
+        //cargo los textView
+        TextView tv_asig = (TextView) findViewById(R.id.tv_asig);
+        TextView tv_aula = (TextView) findViewById(R.id.tv_aula);
+
+        //recibo la info de principal activity
+        String asig = getIntent().getExtras().getString("asignatura");
+        String aula = getIntent().getExtras().getString("aula");
+
+        if(asig != null) {
+            
+            //muestro el contenido en los titulos
+            tv_asig.setText(asig);
+            tv_aula.setText("Aula: " + aula);
+        }
+
         //accedo al surfaceView del entorno grafico
         surfaceView = findViewById(R.id.surfaceview);
 

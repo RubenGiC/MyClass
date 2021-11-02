@@ -88,8 +88,15 @@ public class PrincipalActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(),ArCoreClass.class);
-                startActivity(intent);
+
+                if(list_asig.size()>0) {
+                    Intent intent = new Intent(getApplicationContext(), ArCoreClass.class);
+                    intent.putExtra("asignatura", list_asig.get(0).getNombre());
+                    intent.putExtra("aula", list_asig.get(0).getAula());
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(PrincipalActivity.this, "No tiene asignaturas hoy", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
