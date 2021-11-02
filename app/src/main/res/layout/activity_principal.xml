@@ -35,7 +35,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
             android:paddingLeft="10dp"
@@ -46,7 +46,9 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_horario"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent">
+
+            </androidx.recyclerview.widget.RecyclerView>
 
         </LinearLayout>
 
@@ -55,10 +57,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
+            android:layout_margin="30dp"
             android:src="@drawable/ic_baseline_place_24"
-            android:layout_margin="16dp"
             app:backgroundTint="@color/ic_icon_central_background" />
-
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
