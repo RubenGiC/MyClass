@@ -2,15 +2,19 @@ package org.rubengic.myclass;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import androidx.biometric.BiometricPrompt;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,12 +37,23 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     private EditText ed_usuario, ed_password;
     private Button b_login;
     TextView tv_error;
+
+    /**
+     * para la autentificación por huella, necesitamos 3 variables
+     * - executor: ejecuta la acción
+     * - biometricPrompt: usa el sensor de huella dactilar
+     * - promptInfo: Que activa el entorno grafico a mostrar al usuario
+     */
+    private Executor executor;
+    private BiometricPrompt biometricPrompt;
+    private BiometricPrompt.PromptInfo promptInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +80,78 @@ public class MainActivity extends AppCompatActivity {
                 //validarUsuario("http://192.168.47.2:8080/validar_login.php");
             }
         });
+
+        //inicializo la ejecución para el sensor biometrico
+        executor = ContextCompat.getMainExecutor(this);
+
+        //creo la funcionalidad biometrica
+        biometricPrompt = new BiometricPrompt(
+                MainActivity.this,
+                executor,
+                new BiometricPrompt.AuthenticationCallback(){//función de autentificación
+                    /**
+                     * entra en esta función si tiene un error de autentificación
+                     * (que no tenga el sensor de huellas, no tenga registrada una huella, etc)
+                     */
+
+                    @Override
+                    public void onAuthenticationError(int errorCode, CharSequence errString) {
+                        super.onAuthenticationError(errorCode, errString);
+
+                        Toast.makeText(getApplicationContext(),
+                                "Authentication error: " + errString, Toast.LENGTH_SHORT)
+                                .show();
+
+                    }
+
+                    /**
+                     * En caso de que lea mal la huella
+                     */
+                    @Override
+                    public void onAuthenticationFailed() {
+                        super.onAuthenticationFailed();
+                        Toast.makeText(getApplicationContext(), "Authentication failed",
+                                Toast.LENGTH_SHORT)
+                                .show();
+                    }
+
+                    /**
+                     * En caso de que lea bien la huella
+                     * @param result es el resultado de leer bien la huella
+                     */
+                    @Override
+                    public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
+                        super.onAuthenticationSucceeded(result);
+                        Toast.makeText(getApplicationContext(),
+                                "Authentication succeeded!", Toast.LENGTH_SHORT).show();
+
+                        //si lee bien la huella se autentifica
+                        Intent intent = new Intent(getApplicationContext(),PrincipalActivity.class);
+                        intent.putExtra("id",1);
+                        startActivity(intent);
+                    }
+                }
+        );
+
+        /**
+         * inicializo el entorno grafico de la huella dactilar, pasandole el titulo
+         * , el subtitulo y un boton para cancelar.
+         */
+        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Login Huella dactilar")
+                .setSubtitle("Inicia sesión usando tu huella dactilar")
+                .setNegativeButtonText("Usar contraseña de cuenta")
+                .build();
+
+        ImageButton ib_huella = (ImageButton) findViewById(R.id.ib_huella);
+
+        ib_huella.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                biometricPrompt.authenticate(promptInfo);
+            }
+        });
+
     }
 
     //para validar el usuario y contraseña

@@ -41,4 +41,6 @@ dependencies {
     // Obj - a simple Wavefront OBJ file loader
     // https://github.com/javagl/Obj
     implementation 'de.javagl:obj:0.2.1'
+    implementation "androidx.biometric:biometric:1.1.0"
+
 }
