@@ -41,10 +41,7 @@ public class PrincipalActivity extends AppCompatActivity {
     private RecyclerView rv_lista;
     private ListaHorarioNow adaptador;
 
-    //acción del multitouch
-    private int mActivePointId;
-
-    private FrameLayout m_layout;
+    private ConstraintLayout c_layout;
 
     private float posX=-1, posY=-1;
 
@@ -57,7 +54,7 @@ public class PrincipalActivity extends AppCompatActivity {
 
         titulo = (TextView) findViewById(R.id.tv_titulo);
 
-        m_layout = (FrameLayout) findViewById(R.id.f_layout);
+        c_layout = (ConstraintLayout) findViewById(R.id.c_layout);
 
         Calendar calendar = new GregorianCalendar(TimeZone.getDefault());
 
@@ -100,6 +97,7 @@ public class PrincipalActivity extends AppCompatActivity {
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.floatbotton);
 
+        //activa la realidad aumentada
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,32 +113,47 @@ public class PrincipalActivity extends AppCompatActivity {
             }
         });
 
-
-        m_layout.setOnTouchListener(new View.OnTouchListener() {
+        //acciones multitouch
+        c_layout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                //Toast.makeText(PrincipalActivity.this, "Has tocado con "+String.valueOf(event.getPointerCount()), Toast.LENGTH_SHORT).show();
+                //compruebo que usa más de 1 dedo
                 if(event.getPointerCount() > 1){
-                    //Toast.makeText(PrincipalActivity.this, "Has tocado con 2 dedos o mas", Toast.LENGTH_SHORT).show();
+
+                    //obtengo la acción
                     int action = event.getActionMasked();
 
+                    //tipos de acciones
                     switch (action){
+                        //mantener pulsado la pantalla
                         case MotionEvent.ACTION_POINTER_DOWN:
+                            //calculo las posiciones x e y
                             posX = event.getX();
                             posY = event.getY();
-                            //Toast.makeText(PrincipalActivity.this, "ENTRAAAAAA", Toast.LENGTH_SHORT).show();
                             break;
+                        //deja de pulsar la pantalla
                         case MotionEvent.ACTION_POINTER_UP:
+                            //obtengo las ultimas posiciones de donde toco la pantalla y calcula sus diferencias x e y
                             float difX = posX-event.getX();
                             float difY = posY-event.getY();
-                            //Toast.makeText(PrincipalActivity.this, "-->X=" + String.valueOf(difX) + ", Y=" + String.valueOf(difY), Toast.LENGTH_SHORT).show();
+
+                            /**
+                             * si la diferencia de x es > a la de y y la diferencia de y en valor absoluto de y es > a 100
+                             * esta deslizando los dedos de arriba a bajo.
+                             * Lo de 100 es porque la pantalla de ancho no hay mas de 100 pixeles, pero de largo hay más de 100 pixeles
+                             */
                             if(difX > difY && Math.abs(difY) > 100) {
                                 obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
                                 //obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
                                 Toast.makeText(PrincipalActivity.this, "Lista actualizada", Toast.LENGTH_SHORT).show();
                                 //Log.e("Hacia abajo","Funciona: x="+String.valueOf(difX)+", y="+String.valueOf(difY));
-                            }
-                            if(difX < difY && Math.abs(difY) > 100) {
+
+                            /**
+                             * si la diferencia de x es < a la de y y la diferencia de y en valor absoluto de y es > a 100
+                             * esta deslizando los dedos de arriba a bajo.
+                             * Lo de 100 es porque la pantalla de ancho no hay mas de 100 pixeles, pero de largo hay más de 100 pixeles
+                             */
+                            }else if(difX < difY && Math.abs(difY) > 100) {
                                 if(list_asig.size()>0) {
                                     Intent intent = new Intent(getApplicationContext(), ArCoreClass.class);
                                     intent.putExtra("asignatura", list_asig.get(0).getNombre());
@@ -157,19 +170,6 @@ public class PrincipalActivity extends AppCompatActivity {
                 return true;
             }
         });
-
-        /*rv_lista.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Toast.makeText(PrincipalActivity.this, "Has tocado con "+String.valueOf(event.getPointerCount()+"(2)"), Toast.LENGTH_SHORT).show();
-                if(event.getPointerCount() > 1){
-                    Toast.makeText(PrincipalActivity.this, "Has tocado con 2 dedos o mas (2)", Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            }
-        });*/
-
-
     }
 
     //para validar el usuario y contraseña
@@ -183,6 +183,7 @@ public class PrincipalActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONArray response) {
 
+                //creo el objeto JSON donde guardara cada uno de los valores del array
                 JSONObject json_object = null;
 
                 //si no esta vacia, tiene asignaturas
@@ -197,22 +198,19 @@ public class PrincipalActivity extends AppCompatActivity {
                     //recorro los valores del json
                     for(int i = 0; i<response.length(); ++i){
                         try {
+                            //creo el objeto json con dichos datos
                             json_object = response.getJSONObject(i);
-                            /*
-                            * json_object.getInt("id")
-                            * json_object.getString("nombre")
-                            * json_object.getString("aula")
-                            * json_object.getString("hora")
-                            * */
 
+                            //creo el objeto asignatura a traves de los datos json
                             asignatura = new Asignatura(
                                     json_object.getInt("id"),
                                     json_object.getString("nombre"),
                                     json_object.getString("aula"),
                                     json_object.getString("hora"));
 
+                            //y añado a la lista la nueva asignatura
                             list_asig.add(asignatura);
-                        }catch (JSONException e){
+                        }catch (JSONException e){//en caso de que no funcione el JSON
                             Toast.makeText(PrincipalActivity.this, "ERRROR1: "+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -238,19 +236,5 @@ public class PrincipalActivity extends AppCompatActivity {
         //creo la instancia del request para procesar las peticiones a traves de aqui
         RequestQueue rq = Volley.newRequestQueue(this);
         rq.add(sr);
-    }
-
-    //función que recibe las acciones multitouch
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        //obtengo el punto ID
-        mActivePointId = event.getPointerId(0);
-
-        int pointerIndex = event.findPointerIndex(mActivePointId);
-
-        int action = MotionEventCompat.getActionIndex(event);
-
-        return super.onTouchEvent(event);
     }
 }
