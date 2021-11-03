@@ -91,12 +91,12 @@
                 android:text="O"
                 android:textAlignment="center" />
 
-            <ImageButton
+            <!--<ImageButton
                 android:id="@+id/ib_huella"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:backgroundTint="@color/ic_icon_central_background"
-                app:srcCompat="@drawable/ic_baseline_fingerprint_24" />
+                app:srcCompat="@drawable/ic_baseline_fingerprint_24" />-->
 
             <TextView
                 android:id="@+id/tv_errors"
