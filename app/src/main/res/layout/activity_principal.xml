@@ -29,6 +29,7 @@
     </androidx.appcompat.widget.Toolbar>
 
     <FrameLayout
+        android:id="@+id/f_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingTop="55dp">

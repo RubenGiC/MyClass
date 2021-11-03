@@ -2,12 +2,18 @@ package org.rubengic.myclass;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Layout;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -35,6 +41,13 @@ public class PrincipalActivity extends AppCompatActivity {
     private RecyclerView rv_lista;
     private ListaHorarioNow adaptador;
 
+    //acción del multitouch
+    private int mActivePointId;
+
+    private FrameLayout m_layout;
+
+    private float posX=-1, posY=-1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +56,8 @@ public class PrincipalActivity extends AppCompatActivity {
         id_alumno = getIntent().getExtras().getInt("id");
 
         titulo = (TextView) findViewById(R.id.tv_titulo);
+
+        m_layout = (FrameLayout) findViewById(R.id.f_layout);
 
         Calendar calendar = new GregorianCalendar(TimeZone.getDefault());
 
@@ -99,6 +114,62 @@ public class PrincipalActivity extends AppCompatActivity {
                 }
             }
         });
+
+
+        m_layout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                //Toast.makeText(PrincipalActivity.this, "Has tocado con "+String.valueOf(event.getPointerCount()), Toast.LENGTH_SHORT).show();
+                if(event.getPointerCount() > 1){
+                    //Toast.makeText(PrincipalActivity.this, "Has tocado con 2 dedos o mas", Toast.LENGTH_SHORT).show();
+                    int action = event.getActionMasked();
+
+                    switch (action){
+                        case MotionEvent.ACTION_POINTER_DOWN:
+                            posX = event.getX();
+                            posY = event.getY();
+                            //Toast.makeText(PrincipalActivity.this, "ENTRAAAAAA", Toast.LENGTH_SHORT).show();
+                            break;
+                        case MotionEvent.ACTION_POINTER_UP:
+                            float difX = posX-event.getX();
+                            float difY = posY-event.getY();
+                            //Toast.makeText(PrincipalActivity.this, "-->X=" + String.valueOf(difX) + ", Y=" + String.valueOf(difY), Toast.LENGTH_SHORT).show();
+                            if(difX > difY && Math.abs(difY) > 100) {
+                                obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+                                //obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+                                Toast.makeText(PrincipalActivity.this, "Lista actualizada", Toast.LENGTH_SHORT).show();
+                                //Log.e("Hacia abajo","Funciona: x="+String.valueOf(difX)+", y="+String.valueOf(difY));
+                            }
+                            if(difX < difY && Math.abs(difY) > 100) {
+                                if(list_asig.size()>0) {
+                                    Intent intent = new Intent(getApplicationContext(), ArCoreClass.class);
+                                    intent.putExtra("asignatura", list_asig.get(0).getNombre());
+                                    intent.putExtra("aula", list_asig.get(0).getAula());
+                                    startActivity(intent);
+                                }else{
+                                    Toast.makeText(PrincipalActivity.this, "No tiene asignaturas hoy", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            break;
+                    }
+                }
+
+                return true;
+            }
+        });
+
+        /*rv_lista.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Toast.makeText(PrincipalActivity.this, "Has tocado con "+String.valueOf(event.getPointerCount()+"(2)"), Toast.LENGTH_SHORT).show();
+                if(event.getPointerCount() > 1){
+                    Toast.makeText(PrincipalActivity.this, "Has tocado con 2 dedos o mas (2)", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            }
+        });*/
+
+
     }
 
     //para validar el usuario y contraseña
@@ -167,5 +238,19 @@ public class PrincipalActivity extends AppCompatActivity {
         //creo la instancia del request para procesar las peticiones a traves de aqui
         RequestQueue rq = Volley.newRequestQueue(this);
         rq.add(sr);
+    }
+
+    //función que recibe las acciones multitouch
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        //obtengo el punto ID
+        mActivePointId = event.getPointerId(0);
+
+        int pointerIndex = event.findPointerIndex(mActivePointId);
+
+        int action = MotionEventCompat.getActionIndex(event);
+
+        return super.onTouchEvent(event);
     }
 }
