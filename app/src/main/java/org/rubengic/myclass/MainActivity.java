@@ -25,6 +25,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -143,7 +144,7 @@ public class MainActivity extends AppCompatActivity{
                 .setNegativeButtonText("Usar contraseña de cuenta")
                 .build();
 
-        ImageButton ib_huella = (ImageButton) findViewById(R.id.ib_huella);
+        FloatingActionButton ib_huella = (FloatingActionButton) findViewById(R.id.fb_huella);
 
         ib_huella.setOnClickListener(new View.OnClickListener() {
             @Override
