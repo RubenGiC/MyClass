@@ -92,8 +92,8 @@ public class PrincipalActivity extends AppCompatActivity {
 
         //tipo get "192.168.1.1:8080/lista_asig.php?id="+id
         //http://localhost:8080/lista_asignaturas.php?id=1&semana=1
-        obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
-        //obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+        //obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+        obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.floatbotton);
 
@@ -143,8 +143,8 @@ public class PrincipalActivity extends AppCompatActivity {
                              * Lo de 100 es porque la pantalla de ancho no hay mas de 100 pixeles, pero de largo hay más de 100 pixeles
                              */
                             if(difX > difY && Math.abs(difY) > 100) {
-                                obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
-                                //obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+                                //obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+                                obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
                                 Toast.makeText(PrincipalActivity.this, "Lista actualizada", Toast.LENGTH_SHORT).show();
                                 //Log.e("Hacia abajo","Funciona: x="+String.valueOf(difX)+", y="+String.valueOf(difY));
 
@@ -222,7 +222,12 @@ public class PrincipalActivity extends AppCompatActivity {
 
                 }else{
                     //si no devuelve nada el servidor es que no tiene asignaturas ese dia
-                    Toast.makeText(PrincipalActivity.this, "Hoy no tiene clase", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PrincipalActivity.this, "Hoy no tienes clase", Toast.LENGTH_SHORT).show();
+                    list_asig.clear();
+                    //create the adapter
+                    adaptador = new ListaHorarioNow(list_asig);
+                    //and add the adapter to the recycler view
+                    rv_lista.setAdapter(adaptador);
                 }
             }
         }, new Response.ErrorListener() {
@@ -230,7 +235,8 @@ public class PrincipalActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
 
                 //en caso de error en la respuesta muestro un toast del error
-                Toast.makeText(PrincipalActivity.this, "ERRROR2: "+error.toString(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(PrincipalActivity.this, "ERRROR2: "+error.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(PrincipalActivity.this, "Hoy no tienes clase", Toast.LENGTH_SHORT).show();
             }
         });
         //creo la instancia del request para procesar las peticiones a traves de aqui

@@ -76,8 +76,8 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View view) {
                 //valido usuario y contraseña
-                validarUsuario("http://192.168.1.42:8080/validar_login.php");
-                //validarUsuario("http://192.168.47.2:8080/validar_login.php");
+                //validarUsuario("http://192.168.1.42:8080/validar_login.php");
+                validarUsuario("http://192.168.47.2:8080/validar_login.php");
             }
         });
 
@@ -143,14 +143,14 @@ public class MainActivity extends AppCompatActivity{
                 .setNegativeButtonText("Usar contraseña de cuenta")
                 .build();
 
-        /*ImageButton ib_huella = (ImageButton) findViewById(R.id.ib_huella);
+        ImageButton ib_huella = (ImageButton) findViewById(R.id.ib_huella);
 
         ib_huella.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 biometricPrompt.authenticate(promptInfo);
             }
-        });*/
+        });
 
         biometricPrompt.authenticate(promptInfo);
 
