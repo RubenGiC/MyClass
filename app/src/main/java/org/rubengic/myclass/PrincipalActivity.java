@@ -1,6 +1,11 @@
 package org.rubengic.myclass;
 
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.text.Layout;
 import android.util.Log;
@@ -31,6 +36,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.TimeZone;
 
 public class PrincipalActivity extends AppCompatActivity {
@@ -44,6 +50,13 @@ public class PrincipalActivity extends AppCompatActivity {
     private ConstraintLayout c_layout;
 
     private float posX=-1, posY=-1;
+
+    private SensorManager sensorManager;
+    private Sensor sensor;
+    private SensorEventListener sensorEventListener;
+    private long lastUpdate = 0;
+    private float last_x, last_y, last_z;
+    private static final int sacudida = 600;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,6 +183,66 @@ public class PrincipalActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        //acciones acelerómetro
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        sensorEventListener = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent sensorEvent) {
+                Sensor mySensor = sensorEvent.sensor;
+
+                if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                    float x = sensorEvent.values[0];
+                    float y = sensorEvent.values[1];
+                    float z = sensorEvent.values[2];
+
+                    long curTime = System.currentTimeMillis();
+
+                    if ((curTime - lastUpdate) > 100) {
+                        long diffTime = (curTime - lastUpdate);
+                        lastUpdate = curTime;
+
+                        float speed = Math.abs(x + y + z - last_x - last_y - last_z)/ diffTime * 10000;
+
+                        if (speed > sacudida) {
+                            Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(intent1);
+                        }
+
+                        last_x = x;
+                        last_y = y;
+                        last_z = z;
+                    }
+                }
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int i) {
+
+            }
+        };
+
+//        if (sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null){
+//            List<Sensor> gravSensors = sensorManager.getSensorList(Sensor.TYPE_GRAVITY);
+//            for(int i=0; i<gravSensors.size(); i++) {
+//                if ((gravSensors.get(i).getVendor().contains("Google LLC")) &&
+//                        (gravSensors.get(i).getVersion() == 3)){
+//                    // Use the version 3 gravity sensor.
+//                    mSensor = gravSensors.get(i);
+//                }
+//            }
+//        }
+//        if (mSensor == null){
+//            // Use the accelerometer.
+//            if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
+//                mSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+//            } else{
+                // Sorry, there are no accelerometers on your device.
+                // You can't play this game.
+//            }
+//        }
     }
 
     //para validar el usuario y contraseña
