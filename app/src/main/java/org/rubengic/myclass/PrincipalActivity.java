@@ -58,6 +58,11 @@ public class PrincipalActivity extends AppCompatActivity {
     private float last_x, last_y, last_z;
     private static final int sacudida = 600;
 
+    private SensorManager sensorManager_;
+    private Sensor sensor_;
+    private SensorEventListener sensorEventListener_;
+    int movimientos = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -222,6 +227,43 @@ public class PrincipalActivity extends AppCompatActivity {
             public void onAccuracyChanged(Sensor sensor, int i) {
 
             }
+
+
+        };
+
+        //SENSOR DE ACELERACIÓN para actualizar la pagina
+        this.sensorManager_ = (SensorManager) getSystemService(SENSOR_SERVICE);
+        this.sensor_ = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if(sensor_ == null) {
+            System.out.println("Este móvil no tiene este sensor");
+        }
+
+        sensorEventListener_ = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                float y = event.values[1];
+                //Primer movimiento hacia abajo
+                if (y < -5 && movimientos == 0) {
+                    System.out.println("Primer movimiento para actualizar");
+                    movimientos += 1;
+                //Segundo movimiento para arriba
+                } else if (y < 5 && movimientos == 1) {
+                    System.out.println("Segundo movimiento para actualizar");
+                    movimientos += 1;
+                }
+
+                if (movimientos == 2) {
+                    movimientos = 0;
+                    //Falta actualizar la pagina
+                    Actualizar(nd);
+                }
+
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+            }
         };
 
 //        if (sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null){
@@ -243,6 +285,33 @@ public class PrincipalActivity extends AppCompatActivity {
                 // You can't play this game.
 //            }
 //        }
+
+        this.StartAcelerometro();
+    }
+
+    private void StartAcelerometro(){
+        sensorManager.registerListener(sensorEventListener,sensor,SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    private void StopAcelerometro(){
+        sensorManager.unregisterListener(sensorEventListener);
+    }
+
+    public void Actualizar(int nd){
+        obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+        Toast.makeText(PrincipalActivity.this, "Lista actualizada", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onPause() {
+        this.StopAcelerometro();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        this.StartAcelerometro();
+        super.onResume();
     }
 
     //para validar el usuario y contraseña

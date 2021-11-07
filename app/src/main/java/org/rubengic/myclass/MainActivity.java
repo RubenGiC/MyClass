@@ -1,6 +1,10 @@
 package org.rubengic.myclass;
 
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -43,6 +47,7 @@ public class MainActivity extends AppCompatActivity{
     private Executor executor;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +126,7 @@ public class MainActivity extends AppCompatActivity{
                     }
                 }
         );
+
 
         /**
          * inicializo el entorno grafico de la huella dactilar, pasandole el titulo
