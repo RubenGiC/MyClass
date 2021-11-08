@@ -1,5 +1,6 @@
 package org.rubengic.myclass;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -110,8 +111,8 @@ public class PrincipalActivity extends AppCompatActivity {
 
         //tipo get "192.168.1.1:8080/lista_asig.php?id="+id
         //http://localhost:8080/lista_asignaturas.php?id=1&semana=1
-        //obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
-        obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+        obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+        //obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.floatbotton);
 
@@ -161,8 +162,8 @@ public class PrincipalActivity extends AppCompatActivity {
                              * Lo de 100 es porque la pantalla de ancho no hay mas de 100 pixeles, pero de largo hay más de 100 pixeles
                              */
                             if(difX > difY && Math.abs(difY) > 100) {
-                                //obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
-                                obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+                                obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+                                //obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
                                 Toast.makeText(PrincipalActivity.this, "Lista actualizada", Toast.LENGTH_SHORT).show();
                                 //Log.e("Hacia abajo","Funciona: x="+String.valueOf(difX)+", y="+String.valueOf(difY));
 
@@ -212,8 +213,8 @@ public class PrincipalActivity extends AppCompatActivity {
                         float speed = Math.abs(x + y + z - last_x - last_y - last_z)/ diffTime * 10000;
 
                         if (speed > sacudida) {
-                            Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(intent1);
+                            //vuelve atras
+                            PrincipalActivity.super.onBackPressed();
                         }
 
                         last_x = x;
@@ -232,8 +233,8 @@ public class PrincipalActivity extends AppCompatActivity {
         };
 
         //SENSOR DE ACELERACIÓN para actualizar la pagina
-        this.sensorManager_ = (SensorManager) getSystemService(SENSOR_SERVICE);
-        this.sensor_ = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        //this.sensorManager_ = (SensorManager) getSystemService(SENSOR_SERVICE);
+        //this.sensor_ = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         if(sensor_ == null) {
             System.out.println("Este móvil no tiene este sensor");
         }
@@ -298,7 +299,8 @@ public class PrincipalActivity extends AppCompatActivity {
     }
 
     public void Actualizar(int nd){
-        obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+        obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+        //obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
         Toast.makeText(PrincipalActivity.this, "Lista actualizada", Toast.LENGTH_SHORT).show();
     }
 
