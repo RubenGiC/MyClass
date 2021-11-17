@@ -79,13 +79,8 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
     //esto nos sirve por si nos da un error saber que es de esta clase
     private static final  String TAG = ArCoreClass.class.getSimpleName();
 
-    // MP4 dataset naming convention: arcore-dataset-video.mp4
-    //esto es por si no funciona la camara hacemos un video y lo pintamos
-    private static final String MP4_DATASET_FILENAME_TEMPLATE = "arcore-dataset-video.mp4";
-
     // Keys to keep track of the active dataset and playback state between restarts.
-    //Claves para realizar un seguimiento del conjunto de datos activo y el estado de reproducción.
-    private static final String DESIRED_DATASET_PATH_KEY = "desired_dataset_path_key";
+    //Claves para realizar un seguimiento del conjunto de datos activo
     private static final String DESIRED_APP_STATE_KEY = "desired_app_state_key";
     private static final int PERMISSIONS_REQUEST_CODE = 0;
 
@@ -97,22 +92,17 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
 
     // Randomly generated UUID and custom MIME type to mark the anchor track for this sample.
     private static final UUID ANCHOR_TRACK_ID = UUID.fromString("a65e59fc-2e13-4607-b514-35302121c138");
-    private static final String ANCHOR_TRACK_MIME_TYPE = "application/arcore-class";
 
     // The app state so that it can be preserved when the activity restarts. This is also used to
     // update the UI.
     private final AtomicReference<AppState> currentState = new AtomicReference<>(AppState.IDLE);
-
-    //¿puede que nos haga falta?
-    private String playbackDatasetPath;
-    private String lastRecordingDatasetPath;
 
     private Session session;
     //esto nos puede servir para saber el estado actual del arcore
     //es un snackbar personalizado
     private final SnackbarHelper messageSnackbarHelper = new SnackbarHelper();
 
-    //ni idea si es necesari, si son necesarios habra que crear sus respectivas clases
+    //Detecta la superficie de la imagen que recibe a traves de la camara
     private DisplayRotationHelper displayRotationHelper;
     private final TrackingStateHelper trackingStateHelper = new TrackingStateHelper(this);
 
@@ -204,10 +194,6 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
 
         //función que se encarga de la funcionalidad de la realidad aumentada
         updateUI();
-        /*
-        TextView t = (TextView) findViewById(R.id.panel_info);
-        t.setText(TAG);
-         */
     }
 
     @Override
@@ -241,11 +227,6 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
                 //inicializo la sesión
                 session = new Session(this);
 
-                //si va a usar un video
-                if(currentState.get() == AppState.PLAYBACK){
-                    // Dataset playback will start when session.resume() is called.
-                    setPlaybackDatasetPath();//accede al archivo mp4 y lo carga
-                }
                 //excepciones
             }catch (UnavailableArcoreNotInstalledException | UnavailableUserDeclinedInstallationException e){
                 message = "Por favor installa el Google Play Services para AR (ARCore)";
@@ -302,11 +283,6 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
             // still call session.update() and get a SessionPausedException.
             displayRotationHelper.onPause();
             surfaceView.onPause();
-
-            //esto es cuando para de grabar
-            if(currentState.get() == AppState.RECORDING){
-                stopRecording();
-            }
 
             session.pause();
         }
@@ -385,12 +361,6 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
                 anchorsToBeRecorded.add(anchor);
             }
 
-            //try to record any anchors that have not been recorded yet.
-            recordAnchors(session, frame, camera);
-
-            //if we are playing back, then add any recorded anchors to the session.
-            addRecordedAnchors(session, frame, camera);
-
             //if frame is ready, render camera preview image to the GL surface.
             backgroundRenderer.draw(frame);
 
@@ -407,10 +377,12 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
             }
 
             //Get projection matrix.
+            //obtiene el punto de proyeccion de la camara
             float[] projmtx = new float[16];
             camera.getProjectionMatrix(projmtx, 0, 0.1f, 100.0f);
 
             //Get camera matrix and draw.
+            //obtengo la matriz de la camara, para saber donde se posiciona los objetos virtuales
             float[] viewmtx = new float[16];
             camera.getViewMatrix(viewmtx, 0);
 
@@ -462,8 +434,10 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
                 coloredAnchor.anchor.getPose().toMatrix(anchorMatrix, 0);
 
                 //Update and draw the model and its shadow.
+                //actualiza la escala de factores de la escena (ambiente, difusión, ...)
                 virtualObject.updateModelMatrix(anchorMatrix, scaleFactor);
                 virtualObjectShadow.updateModelMatrix(anchorMatrix, scaleFactor);
+                //actualiza el punto de proyección de la camara y la matriz de la camara de lo que captura (la escena)
                 virtualObject.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
                 virtualObjectShadow.draw(viewmtx, projmtx, colorCorrectionRgba, coloredAnchor.color);
             }
@@ -480,85 +454,9 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
     }
     */
 
-    /**
-     * Restarts current activity to enter or exit playback mode.
-     *
-     * <p>This method simulates an app with separate activities for recording and playback by
-     * restarting the current activity and passing in the desired app state via an intent with extras.
-     */
-    private void restartActivityWithIntentExtras() {
-        Intent intent = this.getIntent();
-        Bundle bundle = new Bundle();
-        bundle.putString(DESIRED_APP_STATE_KEY, currentState.get().name());
-        bundle.putString(DESIRED_DATASET_PATH_KEY, playbackDatasetPath);
-        intent.putExtras(bundle);
-        this.finish();
-        this.startActivity(intent);
-    }
-
-    /** Performs action when playback button is clicked. */
-    private void startPlayback() {
-        if (playbackDatasetPath == null) {
-            return;
-        }
-        currentState.set(AppState.PLAYBACK);
-        restartActivityWithIntentExtras();
-    }
-
-    /** Performs action when close_playback button is clicked. */
-    private void stopPlayback() {
-        currentState.set(AppState.IDLE);
-        restartActivityWithIntentExtras();
-    }
-
-    /** Performs action when start_recording button is clicked. */
-    private void startRecording() {
-        try {
-            lastRecordingDatasetPath = getNewDatasetPath();
-            if (lastRecordingDatasetPath == null) {
-                logAndShowErrorMessage("Failed to generate a MP4 dataset path for recording.");
-                return;
-            }
-
-            Track anchorTrack =
-                    new Track(session).setId(ANCHOR_TRACK_ID).setMimeType(ANCHOR_TRACK_MIME_TYPE);
-
-            session.startRecording(
-                    new RecordingConfig(session)
-                            .setMp4DatasetUri(Uri.fromFile(new File(lastRecordingDatasetPath)))
-                            .setAutoStopOnPause(false)
-                            .addTrack(anchorTrack));
-        } catch (RecordingFailedException e) {
-            String errorMessage = "Failed to start recording. " + e;
-            Log.e(TAG, errorMessage, e);
-            messageSnackbarHelper.showError(this, errorMessage);
-            return;
-        }
-        if (session.getRecordingStatus() != RecordingStatus.OK) {
-            logAndShowErrorMessage(
-                    "Failed to start recording, recording status is " + session.getRecordingStatus());
-            return;
-        }
-        setStateAndUpdateUI(AppState.RECORDING);
-    }
-
-    /** Generates a new MP4 dataset filename based on the current system time. */
-    private static String getNewMp4DatasetFilename() {
-        return String.format(
-                Locale.ENGLISH,
-                MP4_DATASET_FILENAME_TEMPLATE);
-    }
-
-    /** Generates a new MP4 dataset path based on the current system time. */
-    private String getNewDatasetPath() {
-        File baseDir = this.getExternalFilesDir(null);
-        if (baseDir == null) {
-            return null;
-        }
-        return new File(this.getExternalFilesDir(null), getNewMp4DatasetFilename()).getAbsolutePath();
-    }
-
-    /** Checks if we detected at least one plane. */
+    /** Checks if we detected at least one plane.
+     * Detecta si la camara se mueve o no
+     * */
     private boolean hasTrackingPlane() {
         for (Plane plane : session.getAllTrackables(Plane.class)) {
             if (plane.getTrackingState() == TrackingState.TRACKING) {
@@ -566,66 +464,6 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
             }
         }
         return false;
-    }
-
-    /** During playback, recreate any anchors that were placed during recording. */
-    private void addRecordedAnchors(Session session, Frame frame, Camera camera) {
-        for (TrackData data : frame.getUpdatedTrackData(ANCHOR_TRACK_ID)) {
-            ByteBuffer payload = data.getData();
-
-            float[] translation = new float[3];
-            float[] quaternion = new float[4];
-            float[] color = new float[4];
-
-            FloatBuffer floatView = payload.asFloatBuffer();
-            floatView.get(translation);
-            floatView.get(quaternion);
-            floatView.get(color);
-
-            // Transform the recorded anchor pose in the camera coordinate frame back into world
-            // coordinates.
-            Pose pose = camera.getPose().compose(new Pose(translation, quaternion));
-            ColoredAnchor anchor = new ColoredAnchor(session.createAnchor(pose), color);
-            anchors.add(anchor);
-        }
-    }
-
-    /**
-     * Try to add anchors to an MP4 data track track if the app is currently recording.
-     *
-     * <p>Track data recording can sometimes fail due an image not being available for recording in
-     * ARCore, so we try to record all anchors that have not been recorded yet.
-     */
-    private void recordAnchors(Session session, Frame frame, Camera camera) {
-        if (!session.getRecordingStatus().equals(RecordingStatus.OK)) {
-            // We do not record anchors created before we started recording.
-            anchorsToBeRecorded.clear();
-            return;
-        }
-
-        Iterator<ColoredAnchor> anchorIterator = anchorsToBeRecorded.iterator();
-        while (anchorIterator.hasNext()) {
-            ColoredAnchor anchor = anchorIterator.next();
-            // Transform the anchor pose world coordinates in to camera coordinate frame for easy
-            // placement during playback.
-            Pose pose = camera.getPose().inverse().compose(anchor.anchor.getPose());
-            float[] translation = pose.getTranslation();
-            float[] quaternion = pose.getRotationQuaternion();
-            ByteBuffer payload =
-                    ByteBuffer.allocate(4 * (translation.length + quaternion.length + anchor.color.length));
-            FloatBuffer floatView = payload.asFloatBuffer();
-            floatView.put(translation);
-            floatView.put(quaternion);
-            floatView.put(anchor.color);
-
-            try {
-                frame.recordTrackData(ANCHOR_TRACK_ID, payload);
-                anchorIterator.remove();
-            } catch (IllegalStateException e) {
-                Log.e(TAG, "Could not record anchor into external data track.", e);
-                return;
-            }
-        }
     }
 
     //calcula la posición donde se coloca el objeto
@@ -638,6 +476,7 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
                 // Check if any plane was hit, and if it was hit inside the plane polygon.
                 Trackable trackable = hit.getTrackable();
                 // Creates an anchor if a plane or an oriented point was hit.
+                //creamos el anchor donde contendra la información de los sensores
                 if ((trackable instanceof Plane
                         && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
                         && (PlaneRenderer.calculateDistanceToPlane(hit.getHitPose(), camera.getPose()) > 0))
@@ -697,31 +536,6 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
         FullScreenHelper.setFullScreenOnWindowFocusChanged(this, hasFocus);
     }
 
-    /** Performs action when stop_recording button is clicked. */
-    private void stopRecording() {
-        try {
-            session.stopRecording();
-        } catch (RecordingFailedException e) {
-            String errorMessage = "Failed to stop recording. " + e;
-            Log.e(TAG, errorMessage, e);
-            messageSnackbarHelper.showError(this, errorMessage);
-            return;
-        }
-        if (session.getRecordingStatus() == RecordingStatus.OK) {
-            logAndShowErrorMessage(
-                    "Failed to stop recording, recording status is " + session.getRecordingStatus());
-            return;
-        }
-        if (new File(lastRecordingDatasetPath).exists()) {
-            playbackDatasetPath = lastRecordingDatasetPath;
-            Log.d(TAG, "MP4 dataset has been saved at: " + playbackDatasetPath);
-        } else {
-            logAndShowErrorMessage(
-                    "Recording failed. File " + lastRecordingDatasetPath + " wasn't created.");
-        }
-        setStateAndUpdateUI(AppState.IDLE);
-    }
-
     /** Checks the playback is in progress without issues. */
     private void checkPlaybackStatus() {
         if ((session.getPlaybackStatus() != PlaybackStatus.OK)
@@ -754,29 +568,6 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
         return true;
     }
 
-    /** Sets the path of the MP4 dataset to playback. */
-    private void setPlaybackDatasetPath() {
-        if (session.getPlaybackStatus() == PlaybackStatus.OK) {
-            //muestro el mensaje y cambio el estado
-            logAndShowErrorMessage("Session is already playing back.");
-            setStateAndUpdateUI(AppState.PLAYBACK);
-            return;
-        }
-        if (playbackDatasetPath != null) {
-            try {
-                session.setPlaybackDatasetUri(Uri.fromFile(new File(playbackDatasetPath)));
-            } catch (PlaybackFailedException e) {
-                String errorMsg = "Failed to set playback MP4 dataset. " + e;
-                Log.e(TAG, errorMsg, e);
-                messageSnackbarHelper.showError(this, errorMsg);
-                Log.d(TAG, "Setting app state to IDLE, as the playback is not in progress.");
-                setStateAndUpdateUI(AppState.IDLE);
-                return;
-            }
-            setStateAndUpdateUI(AppState.PLAYBACK);
-        }
-    }
-
     /** Helper function to set state and update UI. */
     //cambia el estado y actualiza
     private void setStateAndUpdateUI(AppState state) {
@@ -803,21 +594,13 @@ public class ArCoreClass extends AppCompatActivity implements GLSurfaceView.Rend
             return;
         }
         Bundle bundle = getIntent().getExtras();
-        if (bundle.containsKey(DESIRED_DATASET_PATH_KEY)) {
-            playbackDatasetPath = getIntent().getStringExtra(DESIRED_DATASET_PATH_KEY);
-        }
+
         if (bundle.containsKey(DESIRED_APP_STATE_KEY)) {
             String state = getIntent().getStringExtra(DESIRED_APP_STATE_KEY);
             if (state != null) {
                 switch (state) {
-                    case "PLAYBACK":
-                        currentState.set(AppState.PLAYBACK);
-                        break;
                     case "IDLE":
                         currentState.set(AppState.IDLE);
-                        break;
-                    case "RECORDING":
-                        currentState.set(AppState.RECORDING);
                         break;
                     default:
                         break;

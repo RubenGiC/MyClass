@@ -57,12 +57,14 @@ public class PrincipalActivity extends AppCompatActivity {
     private SensorEventListener sensorEventListener;
     private long lastUpdate = 0;
     private float last_x, last_y, last_z;
-    private static final int sacudida = 600;
+    private static final int sacudida = 3000;
 
     private SensorManager sensorManager_;
     private Sensor sensor_;
     private SensorEventListener sensorEventListener_;
     int movimientos = 0;
+
+    public String server = "http://192.168.1.42:8080";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +113,7 @@ public class PrincipalActivity extends AppCompatActivity {
 
         //tipo get "192.168.1.1:8080/lista_asig.php?id="+id
         //http://localhost:8080/lista_asignaturas.php?id=1&semana=1
-        obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+        obtenerListaJSON(server+"/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
         //obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.floatbotton);
@@ -162,7 +164,7 @@ public class PrincipalActivity extends AppCompatActivity {
                              * Lo de 100 es porque la pantalla de ancho no hay mas de 100 pixeles, pero de largo hay más de 100 pixeles
                              */
                             if(difX > difY && Math.abs(difY) > 100) {
-                                obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+                                obtenerListaJSON(server+"/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
                                 //obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
                                 Toast.makeText(PrincipalActivity.this, "Lista actualizada", Toast.LENGTH_SHORT).show();
                                 //Log.e("Hacia abajo","Funciona: x="+String.valueOf(difX)+", y="+String.valueOf(difY));
@@ -210,7 +212,7 @@ public class PrincipalActivity extends AppCompatActivity {
                         long diffTime = (curTime - lastUpdate);
                         lastUpdate = curTime;
 
-                        float speed = Math.abs(x + y + z - last_x - last_y - last_z)/ diffTime * 10000;
+                        float speed = Math.abs(x - last_x)/ diffTime * 10000;
 
                         if (speed > sacudida) {
                             //vuelve atras
@@ -218,9 +220,40 @@ public class PrincipalActivity extends AppCompatActivity {
                         }
 
                         last_x = x;
+
+                    }
+
+                    //Toast.makeText(PrincipalActivity.this, "-->"+String.valueOf(curTime - lastUpdate), Toast.LENGTH_SHORT).show();
+
+                    /*
+                    if ((curTime - lastUpdate) > 50) {
+
+                        long diffTime = (curTime - lastUpdate);
+
+                        float speed = Math.abs((y) - (last_y));
+
+                        //Toast.makeText(PrincipalActivity.this, String.valueOf(speed), Toast.LENGTH_SHORT).show();
+
+                        //Primer movimiento hacia abajo
+                        if (y<1 && movimientos ==0) {
+                            System.out.println("Primer movimiento para actualizar");
+                            //Falta actualizar la pagina
+                            Actualizar(nd);
+                            //movimientos += 1;
+                            //Segundo movimiento para arriba
+                        } else if (y < 20 && movimientos == 1) {
+                            System.out.println("Segundo movimiento para actualizar");
+                            movimientos += 1;
+                        }
+
+                        if (movimientos == 2) {
+                            movimientos = 0;
+                            Actualizar(nd);
+                        }
+
                         last_y = y;
                         last_z = z;
-                    }
+                    }*/
                 }
             }
 
@@ -230,41 +263,6 @@ public class PrincipalActivity extends AppCompatActivity {
             }
 
 
-        };
-
-        //SENSOR DE ACELERACIÓN para actualizar la pagina
-        //this.sensorManager_ = (SensorManager) getSystemService(SENSOR_SERVICE);
-        //this.sensor_ = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        if(sensor_ == null) {
-            System.out.println("Este móvil no tiene este sensor");
-        }
-
-        sensorEventListener_ = new SensorEventListener() {
-            @Override
-            public void onSensorChanged(SensorEvent event) {
-                float y = event.values[1];
-                //Primer movimiento hacia abajo
-                if (y < -5 && movimientos == 0) {
-                    System.out.println("Primer movimiento para actualizar");
-                    movimientos += 1;
-                //Segundo movimiento para arriba
-                } else if (y < 5 && movimientos == 1) {
-                    System.out.println("Segundo movimiento para actualizar");
-                    movimientos += 1;
-                }
-
-                if (movimientos == 2) {
-                    movimientos = 0;
-                    //Falta actualizar la pagina
-                    Actualizar(nd);
-                }
-
-            }
-
-            @Override
-            public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-            }
         };
 
 //        if (sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null){
@@ -299,7 +297,7 @@ public class PrincipalActivity extends AppCompatActivity {
     }
 
     public void Actualizar(int nd){
-        obtenerListaJSON("http://192.168.1.42:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+        obtenerListaJSON(server+"/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
         //obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
         Toast.makeText(PrincipalActivity.this, "Lista actualizada", Toast.LENGTH_SHORT).show();
     }
