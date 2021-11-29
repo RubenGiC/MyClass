@@ -41,11 +41,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -80,7 +82,7 @@ public class PrincipalActivity extends AppCompatActivity {
     private SpeechRecognizer speechRecognizer;
     private TextToSpeech textToSpeechEngine;
     FloatingActionButton fab_mic;
-    EditText ed_test;
+    //EditText ed_test;
     private ImageView micButton;
 
     public static final Integer RecordAudioRequestCode = 1;
@@ -92,7 +94,7 @@ public class PrincipalActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
 
-        ed_test = findViewById(R.id.ed_test);
+        //ed_test = findViewById(R.id.ed_test);
 
         //para los permisos
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)!= PackageManager.PERMISSION_GRANTED){
@@ -186,8 +188,10 @@ public class PrincipalActivity extends AppCompatActivity {
 
             @Override
             public void onBeginningOfSpeech() {
-                ed_test.setText("");
-                ed_test.setHint("Listening...");
+                //ed_test.setText("");
+                //ed_test.setHint("Listening...");
+
+                Snackbar.make(findViewById(R.id.c_layout), "Escuchando...", Snackbar.LENGTH_LONG).show();
             }
 
             @Override
@@ -214,14 +218,24 @@ public class PrincipalActivity extends AppCompatActivity {
             public void onResults(Bundle bundle) {
 
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                ed_test.setText(data.get(0));
+                //ed_test.setText(data.get(0));
+
+                Toast.makeText(PrincipalActivity.this, data.get(0), Toast.LENGTH_SHORT).show();
 
                 //esto hace que hable con el texto que le pasemos
-                String text = String.valueOf(ed_test.getText());
-                if (!text.isEmpty())
+                String text = cleanString(String.valueOf(data.get(0)));
+
+                if (!text.isEmpty() && (text.indexOf("comer")!=-1 || text.indexOf("menu")!=-1 || text.indexOf("comedor")!=-1)) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        text = "Hoy hay de comer Pizza Pepperoni con piña";
                         textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
                     }
+                }else if (!text.isEmpty() && text.indexOf("*")!=-1){
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        text = "eh eh eh no admito ese vocabulario";
+                        textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
+                    }
+                }
             }
 
             @Override
@@ -505,6 +519,12 @@ public class PrincipalActivity extends AppCompatActivity {
         //creo la instancia del request para procesar las peticiones a traves de aqui
         RequestQueue rq = Volley.newRequestQueue(this);
         rq.add(sr);
+    }
+
+    public static String cleanString(String texto) {
+        texto = Normalizer.normalize(texto, Normalizer.Form.NFD);
+        texto = texto.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+        return texto;
     }
 
     private void checkPermission() {

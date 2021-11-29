@@ -44,7 +44,7 @@
             android:paddingRight="10dp"
             android:paddingBottom="10dp">
 
-            <EditText
+            <!--<EditText
                 android:id="@+id/ed_test"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -53,7 +53,7 @@
                 android:layout_marginRight="15dp"
                 android:hint="Tap to Speak"
                 android:layout_centerInParent="true"
-                android:padding="10dp" />
+                android:padding="10dp" />-->
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_horario"
