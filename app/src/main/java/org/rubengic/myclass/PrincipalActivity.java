@@ -53,6 +53,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.TimeZone;
 
 public class PrincipalActivity extends AppCompatActivity {
@@ -88,11 +89,15 @@ public class PrincipalActivity extends AppCompatActivity {
     public static final Integer RecordAudioRequestCode = 1;
 
     public String server = "http://192.168.1.42:8080";//"http://192.168.8.2:8080";//"http://192.168.1.42:8080";
+    Random rand;
+    int upperbound = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
+
+        rand = new Random(); //instance of random class
 
         //ed_test = findViewById(R.id.ed_test);
 
@@ -231,8 +236,25 @@ public class PrincipalActivity extends AppCompatActivity {
                         textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
 
                     } else if (text.indexOf("*") != -1) {
+                        //generate random values from 0-24
+                        switch (rand.nextInt(upperbound)){
+                            case 0:
+                                text = "eh eh eh no admito ese vocabulario";
+                                break;
+                            case 1:
+                                text = "OYE no me hables asi";
+                                break;
+                            case 2:
+                                text = "que te he hecho para que me digas eso";
+                                break;
+                            case 3:
+                                text = "eso me ha ofendido";
+                                break;
+                            default:
+                                text = "oye que yo tengo sentimientos ¿sabes?";
+                                break;
+                        }
 
-                        text = "eh eh eh no admito ese vocabulario";
                         textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
 
                     } else if(text.indexOf("lleva")!=-1 || text.indexOf("donde")!=-1){
@@ -252,6 +274,9 @@ public class PrincipalActivity extends AppCompatActivity {
                         }else{
                             text = "Hoy no tienes clase descansa que lo necesitas";
                         }
+                        textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
+                    }else{
+                        text = "No te he entendido";
                         textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
                     }
                 }
