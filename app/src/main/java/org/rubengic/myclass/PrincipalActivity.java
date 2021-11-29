@@ -1,24 +1,36 @@
 package org.rubengic.myclass;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
 import android.text.Layout;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.MotionEventCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class PrincipalActivity extends AppCompatActivity {
@@ -63,13 +76,28 @@ public class PrincipalActivity extends AppCompatActivity {
     private Sensor sensor_;
     private SensorEventListener sensorEventListener_;
     int movimientos = 0;
+    //variable para reconocer la voz para transformarla a texto
+    private SpeechRecognizer speechRecognizer;
+    private TextToSpeech textToSpeechEngine;
+    FloatingActionButton fab_mic;
+    EditText ed_test;
+    private ImageView micButton;
 
-    public String server = "http://192.168.1.42:8080";
+    public static final Integer RecordAudioRequestCode = 1;
+
+    public String server = "http://192.168.8.2:8080";//"http://192.168.1.42:8080";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
+
+        ed_test = findViewById(R.id.ed_test);
+
+        //para los permisos
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)!= PackageManager.PERMISSION_GRANTED){
+            checkPermission();
+        }
 
         id_alumno = getIntent().getExtras().getInt("id");
 
@@ -117,6 +145,7 @@ public class PrincipalActivity extends AppCompatActivity {
         //obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.floatbotton);
+        fab_mic = (FloatingActionButton) findViewById(R.id.floatbotton_mic);
 
         //activa la realidad aumentada
         fab.setOnClickListener(new View.OnClickListener() {
@@ -131,6 +160,93 @@ public class PrincipalActivity extends AppCompatActivity {
                 }else{
                     Toast.makeText(PrincipalActivity.this, "No tiene asignaturas hoy", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        textToSpeechEngine = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.SUCCESS) {
+                    Log.e("TTS", "Inicio de la síntesis fallido");
+                }
+            }
+        });
+
+
+        final Intent speechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+
+        speechRecognizer.setRecognitionListener(new RecognitionListener() {
+            @Override
+            public void onReadyForSpeech(Bundle bundle) {
+
+            }
+
+            @Override
+            public void onBeginningOfSpeech() {
+                ed_test.setText("");
+                ed_test.setHint("Listening...");
+            }
+
+            @Override
+            public void onRmsChanged(float v) {
+
+            }
+
+            @Override
+            public void onBufferReceived(byte[] bytes) {
+
+            }
+
+            @Override
+            public void onEndOfSpeech() {
+
+            }
+
+            @Override
+            public void onError(int i) {
+
+            }
+
+            @Override
+            public void onResults(Bundle bundle) {
+
+                ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                ed_test.setText(data.get(0));
+            }
+
+            @Override
+            public void onPartialResults(Bundle bundle) {
+
+            }
+
+            @Override
+            public void onEvent(int i, Bundle bundle) {
+
+            }
+        });
+
+        fab_mic.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        fab_mic.setImageResource(R.drawable.ic_baseline_mic_24);
+                        speechRecognizer.startListening(speechRecognizerIntent);
+                        Toast.makeText(PrincipalActivity.this, "DOWN", Toast.LENGTH_SHORT).show();
+                        return false;
+                    case MotionEvent.ACTION_UP:
+                        fab_mic.setImageResource(R.drawable.ic_baseline_mic_none_24);
+                        speechRecognizer.stopListening();
+                        Toast.makeText(PrincipalActivity.this, "UP", Toast.LENGTH_SHORT).show();
+                        return false;
+                    default:
+                        return false;
+                }
+
             }
         });
 
@@ -384,5 +500,24 @@ public class PrincipalActivity extends AppCompatActivity {
         //creo la instancia del request para procesar las peticiones a traves de aqui
         RequestQueue rq = Volley.newRequestQueue(this);
         rq.add(sr);
+    }
+
+    private void checkPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[] {Manifest.permission.RECORD_AUDIO},
+                    RecordAudioRequestCode
+            );
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == RecordAudioRequestCode && grantResults.length > 0 ){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                Toast.makeText(this,"Permission Granted",Toast.LENGTH_SHORT).show();
+        }
     }
 }

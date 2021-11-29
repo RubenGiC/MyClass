@@ -44,6 +44,17 @@
             android:paddingRight="10dp"
             android:paddingBottom="10dp">
 
+            <EditText
+                android:id="@+id/ed_test"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="15dp"
+                android:hint="Tap to Speak"
+                android:layout_centerInParent="true"
+                android:padding="10dp" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_horario"
                 android:layout_width="match_parent"
@@ -51,16 +62,31 @@
 
             </androidx.recyclerview.widget.RecyclerView>
 
+
+
         </LinearLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floatbotton_mic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="30dp"
+            android:src="@drawable/ic_baseline_mic_none_24"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@color/ic_icon_central_background" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/floatbotton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_margin="30dp"
+            android:layout_marginVertical="100dp"
+            android:layout_marginRight="30dp"
             android:src="@drawable/ic_baseline_place_24"
             app:backgroundTint="@color/ic_icon_central_background" />
+
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

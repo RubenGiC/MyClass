@@ -1,10 +1,13 @@
 package org.rubengic.myclass;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,8 +15,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricPrompt;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.android.volley.AuthFailureError;
@@ -47,7 +52,8 @@ public class MainActivity extends AppCompatActivity{
     private Executor executor;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
-    public String server = "http://192.168.1.42:8080";
+    public String server = "http://192.168.8.2:8080";//"http://192.168.1.42:8080";
+    //public static final Integer RecordAudioRequestCode = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,9 +153,31 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-        biometricPrompt.authenticate(promptInfo);
+        //biometricPrompt.authenticate(promptInfo);
 
+        /*if(ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)!= PackageManager.PERMISSION_GRANTED){
+            checkPermission();
+        }*/
     }
+
+    /*@Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == RecordAudioRequestCode && grantResults.length > 0 ){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                Toast.makeText(this,"Permission Granted",Toast.LENGTH_SHORT).show();
+        }
+    }*/
+
+    /*private void checkPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[] {Manifest.permission.RECORD_AUDIO},
+                    RecordAudioRequestCode
+            );
+        }
+    }*/
 
     //para validar el usuario y contraseña
     private void validarUsuario(String URL){
