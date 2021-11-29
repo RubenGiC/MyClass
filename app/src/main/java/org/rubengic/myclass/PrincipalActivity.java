@@ -87,7 +87,7 @@ public class PrincipalActivity extends AppCompatActivity {
 
     public static final Integer RecordAudioRequestCode = 1;
 
-    public String server = "http://192.168.8.2:8080";//"http://192.168.1.42:8080";
+    public String server = "http://192.168.1.42:8080";//"http://192.168.8.2:8080";//"http://192.168.1.42:8080";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -225,14 +225,33 @@ public class PrincipalActivity extends AppCompatActivity {
                 //esto hace que hable con el texto que le pasemos
                 String text = cleanString(String.valueOf(data.get(0)));
 
-                if (!text.isEmpty() && (text.indexOf("comer")!=-1 || text.indexOf("menu")!=-1 || text.indexOf("comedor")!=-1)) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if(!text.isEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    if (text.indexOf("comer") != -1 || text.indexOf("menu") != -1 || text.indexOf("comedor") != -1) {
                         text = "Hoy hay de comer Pizza Pepperoni con piña";
                         textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
-                    }
-                }else if (!text.isEmpty() && text.indexOf("*")!=-1){
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+                    } else if (text.indexOf("*") != -1) {
+
                         text = "eh eh eh no admito ese vocabulario";
+                        textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
+
+                    } else if(text.indexOf("lleva")!=-1 || text.indexOf("donde")!=-1){
+                        if(list_asig.size()>0) {
+                            Intent intent = new Intent(getApplicationContext(), ArCoreClass.class);
+                            intent.putExtra("asignatura", list_asig.get(0).getNombre());
+                            intent.putExtra("aula", list_asig.get(0).getAula());
+                            startActivity(intent);
+                        }else{
+                            text = "Hoy no tienes clase descansa que lo necesitas XD";
+
+                            textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
+                        }
+                    } else if (text.indexOf("clase")!=-1 || text.indexOf("tengo")!=-1 || text.indexOf("asignatura")!=-1) {
+                        if(list_asig.size()>0) {
+                            text = "Hoy tienes clase de " + list_asig.get(0).getNombre() + " en el aula " + list_asig.get(0).getAula();
+                        }else{
+                            text = "Hoy no tienes clase descansa que lo necesitas";
+                        }
                         textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
                     }
                 }
