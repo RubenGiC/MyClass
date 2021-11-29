@@ -215,6 +215,13 @@ public class PrincipalActivity extends AppCompatActivity {
 
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 ed_test.setText(data.get(0));
+
+                //esto hace que hable con el texto que le pasemos
+                String text = String.valueOf(ed_test.getText());
+                if (!text.isEmpty())
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
+                    }
             }
 
             @Override
@@ -236,12 +243,10 @@ public class PrincipalActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_DOWN:
                         fab_mic.setImageResource(R.drawable.ic_baseline_mic_24);
                         speechRecognizer.startListening(speechRecognizerIntent);
-                        Toast.makeText(PrincipalActivity.this, "DOWN", Toast.LENGTH_SHORT).show();
                         return false;
                     case MotionEvent.ACTION_UP:
                         fab_mic.setImageResource(R.drawable.ic_baseline_mic_none_24);
                         speechRecognizer.stopListening();
-                        Toast.makeText(PrincipalActivity.this, "UP", Toast.LENGTH_SHORT).show();
                         return false;
                     default:
                         return false;
