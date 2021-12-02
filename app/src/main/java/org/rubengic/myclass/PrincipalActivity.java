@@ -232,7 +232,27 @@ public class PrincipalActivity extends AppCompatActivity {
 
                 if(!text.isEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     if (text.indexOf("comer") != -1 || text.indexOf("menu") != -1 || text.indexOf("comedor") != -1) {
-                        text = "Hoy hay de comer Pizza Pepperoni con piña";
+                        switch (nd){
+                            case 2:
+                                text = "Hoy hay de comer Pizza Pepperoni con piña";
+                                break;
+                            case 3:
+                                text = "De primero tenemos sopa de verduras, de segundo churrasco y de postre flan";
+                                break;
+                            case 4:
+                                text = "Hoy hay de comer ensalada mixta, de segundo bacalao con tomate y de postre pera";
+                                break;
+                            case 5:
+                                text = "Hoy tenemos sopa de mi pueblo, plato alpujarreño y de postre manzana";
+                                break;
+                            case 6:
+                                text = "Tenemos de primero cazuela de pescado, de segundo cachopo y de postre tarta de queso";
+                                break;
+                            default:
+                                text = "Hoy el comedor esta cerrado";
+                                break;
+                        }
+
                         textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
 
                     } else if (text.indexOf("*") != -1) {
@@ -275,6 +295,9 @@ public class PrincipalActivity extends AppCompatActivity {
                             text = "Hoy no tienes clase descansa que lo necesitas";
                         }
                         textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
+                    }else if(text.indexOf("actualiza")!=-1 || text.indexOf("actualizame")!=-1   ){
+                        obtenerListaJSON(server+"/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+                        Toast.makeText(PrincipalActivity.this, "Lista actualizada", Toast.LENGTH_SHORT).show();
                     }else{
                         text = "No te he entendido";
                         textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
