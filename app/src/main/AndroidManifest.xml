@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.RECORD_AUDIO"/> <!-- PERMISO MICRO -->
 
-    //Permiso para utilizar Acelerometro
+    <!--Permiso para utilizar Acelerometro-->
     <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="true" />
     <!--
  Limits app visibility in the Google Play Store to ARCore supported devices
@@ -35,6 +35,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         android:usesCleartextTraffic="false">
+        <activity
+            android:name=".ChatBot"
+            android:exported="true" />
         <activity
             android:name=".ArCoreClass"
             android:exported="false" />

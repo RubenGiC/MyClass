@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity{
     private Executor executor;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
-    public String server = "http://192.168.8.2:8080";//"http://192.168.1.42:8080";
+    public String server = "http://192.168.1.42:8080";//http://192.168.8.2:8080";
     //public static final Integer RecordAudioRequestCode = 1;
 
     @Override

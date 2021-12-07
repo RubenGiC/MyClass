@@ -17,7 +17,7 @@
 
         <TextView
             android:id="@+id/tv_titulo"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:fontFamily="sans-serif-light"
             android:text="Horario"
@@ -26,7 +26,20 @@
             android:textStyle="bold"
             tools:layout_editor_absoluteX="16dp"
             tools:layout_editor_absoluteY="18dp"></TextView>
+
+        <ImageButton
+            android:id="@+id/ib_chat"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:background="@color/ic_icon_central_background"
+            android:paddingRight="20dp"
+            android:clickable="true"
+            app:srcCompat="@drawable/ic_baseline_chat_24"
+            tools:layout_editor_absoluteX="96dp"
+            tools:layout_editor_absoluteY="6dp" />
     </androidx.appcompat.widget.Toolbar>
+
 
     <FrameLayout
         android:id="@+id/f_layout"

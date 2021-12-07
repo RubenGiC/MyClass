@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "org.rubengic.myclass"
-        minSdk 15 //para el speechRecognizer necesita esto
+        minSdk 23 //para el speechRecognizer necesita esto
         targetSdk 29 //para el speechRecognizer necesita esto
         versionCode 1
         versionName "2.0"
@@ -44,4 +44,7 @@ dependencies {
     implementation "androidx.biometric:biometric:1.1.0"
     //para el speechRecognizer necesita esto
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    //para dialogflow
+
+
 }

@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -83,12 +84,13 @@ public class PrincipalActivity extends AppCompatActivity {
     private SpeechRecognizer speechRecognizer;
     private TextToSpeech textToSpeechEngine;
     FloatingActionButton fab_mic;
+    private ImageButton ib_chat;
     //EditText ed_test;
     private ImageView micButton;
 
     public static final Integer RecordAudioRequestCode = 1;
 
-    public String server = "http://192.168.1.42:8080";//"http://192.168.8.2:8080";//"http://192.168.1.42:8080";
+    public String server = "http://192.168.1.42:8080";//"http://192.168.8.2:8080";
     Random rand;
     int upperbound = 5;
 
@@ -150,6 +152,16 @@ public class PrincipalActivity extends AppCompatActivity {
         //http://localhost:8080/lista_asignaturas.php?id=1&semana=1
         obtenerListaJSON(server+"/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
         //obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+
+        ib_chat = (ImageButton) findViewById(R.id.ib_chat);
+
+        ib_chat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), ChatBot.class);
+                startActivity(intent);
+            }
+        });
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.floatbotton);
         fab_mic = (FloatingActionButton) findViewById(R.id.floatbotton_mic);
@@ -225,7 +237,7 @@ public class PrincipalActivity extends AppCompatActivity {
                 ArrayList<String> data = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 //ed_test.setText(data.get(0));
 
-                Toast.makeText(PrincipalActivity.this, data.get(0), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(PrincipalActivity.this, data.get(0), Toast.LENGTH_SHORT).show();
 
                 //esto hace que hable con el texto que le pasemos
                 String text = cleanString(String.valueOf(data.get(0)));
