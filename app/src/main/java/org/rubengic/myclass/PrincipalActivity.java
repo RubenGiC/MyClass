@@ -182,6 +182,163 @@ public class PrincipalActivity extends AppCompatActivity {
             }
         });
 
+        interfazOral(nd);
+
+        //acciones multitouch
+        c_layout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                //compruebo que usa más de 1 dedo
+                if(event.getPointerCount() > 1){
+
+                    //obtengo la acción
+                    int action = event.getActionMasked();
+
+                    //tipos de acciones
+                    switch (action){
+                        //mantener pulsado la pantalla
+                        case MotionEvent.ACTION_POINTER_DOWN:
+                            //calculo las posiciones x e y
+                            posX = event.getX();
+                            posY = event.getY();
+                            break;
+                        //deja de pulsar la pantalla
+                        case MotionEvent.ACTION_POINTER_UP:
+                            //obtengo las ultimas posiciones de donde toco la pantalla y calcula sus diferencias x e y
+                            float difX = posX-event.getX();
+                            float difY = posY-event.getY();
+
+                            /**
+                             * si la diferencia de x es > a la de y y la diferencia de y en valor absoluto de y es > a 100
+                             * esta deslizando los dedos de arriba a bajo.
+                             * Lo de 100 es porque la pantalla de ancho no hay mas de 100 pixeles, pero de largo hay más de 100 pixeles
+                             */
+                            if(difX > difY && Math.abs(difY) > 100) {
+                                obtenerListaJSON(server+"/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+                                //obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
+                                Toast.makeText(PrincipalActivity.this, "Lista actualizada", Toast.LENGTH_SHORT).show();
+                                //Log.e("Hacia abajo","Funciona: x="+String.valueOf(difX)+", y="+String.valueOf(difY));
+
+                            /**
+                             * si la diferencia de x es < a la de y y la diferencia de y en valor absoluto de y es > a 100
+                             * esta deslizando los dedos de arriba a bajo.
+                             * Lo de 100 es porque la pantalla de ancho no hay mas de 100 pixeles, pero de largo hay más de 100 pixeles
+                             */
+                            }else if(difX < difY && Math.abs(difY) > 100) {
+                                if(list_asig.size()>0) {
+                                    Intent intent = new Intent(getApplicationContext(), ArCoreClass.class);
+                                    intent.putExtra("asignatura", list_asig.get(0).getNombre());
+                                    intent.putExtra("aula", list_asig.get(0).getAula());
+                                    startActivity(intent);
+                                }else{
+                                    Toast.makeText(PrincipalActivity.this, "No tiene asignaturas hoy", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            break;
+                    }
+                }
+
+                return true;
+            }
+        });
+
+        //acciones acelerómetro
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        sensorEventListener = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent sensorEvent) {
+                Sensor mySensor = sensorEvent.sensor;
+
+                if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                    float x = sensorEvent.values[0];
+                    float y = sensorEvent.values[1];
+                    float z = sensorEvent.values[2];
+
+                    long curTime = System.currentTimeMillis();
+
+                    if ((curTime - lastUpdate) > 100) {
+                        long diffTime = (curTime - lastUpdate);
+                        lastUpdate = curTime;
+
+                        float speed = Math.abs(x - last_x)/ diffTime * 10000;
+
+                        if (speed > sacudida) {
+                            //vuelve atras
+                            PrincipalActivity.super.onBackPressed();
+                        }
+
+                        last_x = x;
+
+                    }
+
+                    //Toast.makeText(PrincipalActivity.this, "-->"+String.valueOf(curTime - lastUpdate), Toast.LENGTH_SHORT).show();
+
+                    /*
+                    if ((curTime - lastUpdate) > 50) {
+
+                        long diffTime = (curTime - lastUpdate);
+
+                        float speed = Math.abs((y) - (last_y));
+
+                        //Toast.makeText(PrincipalActivity.this, String.valueOf(speed), Toast.LENGTH_SHORT).show();
+
+                        //Primer movimiento hacia abajo
+                        if (y<1 && movimientos ==0) {
+                            System.out.println("Primer movimiento para actualizar");
+                            //Falta actualizar la pagina
+                            Actualizar(nd);
+                            //movimientos += 1;
+                            //Segundo movimiento para arriba
+                        } else if (y < 20 && movimientos == 1) {
+                            System.out.println("Segundo movimiento para actualizar");
+                            movimientos += 1;
+                        }
+
+                        if (movimientos == 2) {
+                            movimientos = 0;
+                            Actualizar(nd);
+                        }
+
+                        last_y = y;
+                        last_z = z;
+                    }*/
+                }
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int i) {
+
+            }
+
+
+        };
+
+//        if (sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null){
+//            List<Sensor> gravSensors = sensorManager.getSensorList(Sensor.TYPE_GRAVITY);
+//            for(int i=0; i<gravSensors.size(); i++) {
+//                if ((gravSensors.get(i).getVendor().contains("Google LLC")) &&
+//                        (gravSensors.get(i).getVersion() == 3)){
+//                    // Use the version 3 gravity sensor.
+//                    mSensor = gravSensors.get(i);
+//                }
+//            }
+//        }
+//        if (mSensor == null){
+//            // Use the accelerometer.
+//            if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
+//                mSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+//            } else{
+                // Sorry, there are no accelerometers on your device.
+                // You can't play this game.
+//            }
+//        }
+
+        this.StartAcelerometro();
+    }
+
+    private void interfazOral(int nd){
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         textToSpeechEngine = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
@@ -347,159 +504,6 @@ public class PrincipalActivity extends AppCompatActivity {
 
             }
         });
-
-        //acciones multitouch
-        c_layout.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                //compruebo que usa más de 1 dedo
-                if(event.getPointerCount() > 1){
-
-                    //obtengo la acción
-                    int action = event.getActionMasked();
-
-                    //tipos de acciones
-                    switch (action){
-                        //mantener pulsado la pantalla
-                        case MotionEvent.ACTION_POINTER_DOWN:
-                            //calculo las posiciones x e y
-                            posX = event.getX();
-                            posY = event.getY();
-                            break;
-                        //deja de pulsar la pantalla
-                        case MotionEvent.ACTION_POINTER_UP:
-                            //obtengo las ultimas posiciones de donde toco la pantalla y calcula sus diferencias x e y
-                            float difX = posX-event.getX();
-                            float difY = posY-event.getY();
-
-                            /**
-                             * si la diferencia de x es > a la de y y la diferencia de y en valor absoluto de y es > a 100
-                             * esta deslizando los dedos de arriba a bajo.
-                             * Lo de 100 es porque la pantalla de ancho no hay mas de 100 pixeles, pero de largo hay más de 100 pixeles
-                             */
-                            if(difX > difY && Math.abs(difY) > 100) {
-                                obtenerListaJSON(server+"/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
-                                //obtenerListaJSON("http://192.168.47.2:8080/lista_asignaturas.php?id="+id_alumno+"&semana="+nd);
-                                Toast.makeText(PrincipalActivity.this, "Lista actualizada", Toast.LENGTH_SHORT).show();
-                                //Log.e("Hacia abajo","Funciona: x="+String.valueOf(difX)+", y="+String.valueOf(difY));
-
-                            /**
-                             * si la diferencia de x es < a la de y y la diferencia de y en valor absoluto de y es > a 100
-                             * esta deslizando los dedos de arriba a bajo.
-                             * Lo de 100 es porque la pantalla de ancho no hay mas de 100 pixeles, pero de largo hay más de 100 pixeles
-                             */
-                            }else if(difX < difY && Math.abs(difY) > 100) {
-                                if(list_asig.size()>0) {
-                                    Intent intent = new Intent(getApplicationContext(), ArCoreClass.class);
-                                    intent.putExtra("asignatura", list_asig.get(0).getNombre());
-                                    intent.putExtra("aula", list_asig.get(0).getAula());
-                                    startActivity(intent);
-                                }else{
-                                    Toast.makeText(PrincipalActivity.this, "No tiene asignaturas hoy", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                            break;
-                    }
-                }
-
-                return true;
-            }
-        });
-
-        //acciones acelerómetro
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
-        sensorEventListener = new SensorEventListener() {
-            @Override
-            public void onSensorChanged(SensorEvent sensorEvent) {
-                Sensor mySensor = sensorEvent.sensor;
-
-                if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                    float x = sensorEvent.values[0];
-                    float y = sensorEvent.values[1];
-                    float z = sensorEvent.values[2];
-
-                    long curTime = System.currentTimeMillis();
-
-                    if ((curTime - lastUpdate) > 100) {
-                        long diffTime = (curTime - lastUpdate);
-                        lastUpdate = curTime;
-
-                        float speed = Math.abs(x - last_x)/ diffTime * 10000;
-
-                        if (speed > sacudida) {
-                            //vuelve atras
-                            PrincipalActivity.super.onBackPressed();
-                        }
-
-                        last_x = x;
-
-                    }
-
-                    //Toast.makeText(PrincipalActivity.this, "-->"+String.valueOf(curTime - lastUpdate), Toast.LENGTH_SHORT).show();
-
-                    /*
-                    if ((curTime - lastUpdate) > 50) {
-
-                        long diffTime = (curTime - lastUpdate);
-
-                        float speed = Math.abs((y) - (last_y));
-
-                        //Toast.makeText(PrincipalActivity.this, String.valueOf(speed), Toast.LENGTH_SHORT).show();
-
-                        //Primer movimiento hacia abajo
-                        if (y<1 && movimientos ==0) {
-                            System.out.println("Primer movimiento para actualizar");
-                            //Falta actualizar la pagina
-                            Actualizar(nd);
-                            //movimientos += 1;
-                            //Segundo movimiento para arriba
-                        } else if (y < 20 && movimientos == 1) {
-                            System.out.println("Segundo movimiento para actualizar");
-                            movimientos += 1;
-                        }
-
-                        if (movimientos == 2) {
-                            movimientos = 0;
-                            Actualizar(nd);
-                        }
-
-                        last_y = y;
-                        last_z = z;
-                    }*/
-                }
-            }
-
-            @Override
-            public void onAccuracyChanged(Sensor sensor, int i) {
-
-            }
-
-
-        };
-
-//        if (sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null){
-//            List<Sensor> gravSensors = sensorManager.getSensorList(Sensor.TYPE_GRAVITY);
-//            for(int i=0; i<gravSensors.size(); i++) {
-//                if ((gravSensors.get(i).getVendor().contains("Google LLC")) &&
-//                        (gravSensors.get(i).getVersion() == 3)){
-//                    // Use the version 3 gravity sensor.
-//                    mSensor = gravSensors.get(i);
-//                }
-//            }
-//        }
-//        if (mSensor == null){
-//            // Use the accelerometer.
-//            if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
-//                mSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-//            } else{
-                // Sorry, there are no accelerometers on your device.
-                // You can't play this game.
-//            }
-//        }
-
-        this.StartAcelerometro();
     }
 
     private void StartAcelerometro(){
