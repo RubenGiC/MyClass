@@ -425,7 +425,7 @@ public class PrincipalActivity extends AppCompatActivity {
                         textToSpeechEngine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts1");
 
                     } else if (text.indexOf("*") != -1) {
-                        //generate random values from 0-24
+                        //generate random values from 0-5
                         switch (rand.nextInt(upperbound)){
                             case 0:
                                 text = "eh eh eh no admito ese vocabulario";
